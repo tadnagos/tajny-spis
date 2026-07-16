@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 006 - Vyšetřovací spis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#040a13;
+  --bg-mid:#0c2036;
+  --bg-panel:#0e2740;
+  --blue:#3f7fc0;
+  --blue-light:#8fc4ee;
+  --blue-pale:#cfe6fa;
+  --ink:#dce8f4;
+  --muted:#7189a0;
+  --gold:#d9b46a;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;min-height:100vh;min-height:100dvh;}
+body{
+  background: radial-gradient(ellipse at 50% 40%, var(--bg-mid) 0%, var(--bg-deep) 65%, #000 115%);
+  font-family:'Manrope', sans-serif;
+  color:var(--ink);
+  overflow-x:hidden;
+}
+body::after{
+  content:"";
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:5;
+  background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.75) 100%);
+}
+.screen{
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  position:relative;
+  padding:24px 16px;
+}
+.hidden{display:none !important;}
+
+/* ---------- INTRO / MONTAGE ---------- */
+#introScreen{
+  cursor:default;
+  position:relative;
+  min-height:100vh;
+  min-height:100dvh;
+  padding:0;
+  overflow:hidden;
+  opacity:1;
+  filter:blur(0px);
+  transition:opacity .65s ease, filter .65s ease;
+}
+#introScreen.leaving{
+  opacity:0;
+  filter:blur(10px);
+  pointer-events:none;
+}
+.montage-stage{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
+.montage-stage img{
+  position:absolute;inset:0;
+  width:100%;height:100%;object-fit:cover;
+  opacity:0;
+  filter:brightness(.6) saturate(.9);
+  transition:opacity .18s ease;
+}
+.montage-stage img.flash{opacity:1;}
+.montage-stage::after{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom, rgba(2,7,14,.35) 0%, rgba(2,7,14,.15) 40%, rgba(2,7,14,.55) 100%);
+  transition:background .8s ease;
+}
+.montage-stage.settled::after{
+  background:linear-gradient(to bottom, rgba(2,7,14,.55) 0%, rgba(2,7,14,.4) 40%, rgba(2,7,14,.7) 100%);
+}
+.six-wrap{
+  position:relative;
+  z-index:3;
+  text-align:center;
+  opacity:0;
+  transform:translateY(14px) scale(.94);
+  transition:opacity 1.1s ease, transform 1.1s ease;
+}
+.six-wrap.show{opacity:1;transform:translateY(0) scale(1);}
+.six-number{
+  font-family:'Manrope', sans-serif;
+  font-weight:800;
+  font-size:clamp(120px, 26vw, 320px);
+  line-height:.9;
+  color:#ffffff;
+  text-shadow:0 8px 50px rgba(0,0,0,.55);
+  cursor:pointer;
+  user-select:none;
+  letter-spacing:-.02em;
+}
+.six-caption{
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.75);
+  margin-top:6px;
+  text-shadow:0 2px 16px rgba(0,0,0,.5);
+}
+.six-hint{
+  font-size:15px;
+  font-weight:500;
+  color:var(--blue-light);
+  margin-top:20px;
+  opacity:0;
+  animation:pulse 2.4s ease-in-out infinite;
+  animation-delay:1.4s;
+  letter-spacing:.04em;
+}
+.six-wrap.show .six-hint{opacity:.9;}
+@keyframes pulse{0%,100%{opacity:.55;}50%{opacity:1;}}
+
+/* ---------- AGENT VERIFICATION SCREEN ---------- */
+#agentScreen {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .8s ease, transform .8s ease;
+  z-index: 10;
+}
+#agentScreen.enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+.agent-wrap {
+  text-align: center;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(14,39,64,0.6);
+  border: 1px solid rgba(143,196,238,.2);
+  border-radius: 12px;
+  padding: 40px 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+}
+.agent-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 24px;
+  color: var(--blue-light);
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.agent-wrap p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+#agentInput {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 20px;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+/* ---------- LAYOUT S PANELEM VELITELE ---------- */
+#gridScreen {
+  padding-top:40px;
+  padding-bottom:40px;
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .7s ease, transform .7s ease;
+  z-index: 10;
+  width: 100%;
+}
+#gridScreen.enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+.layout-container {
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  max-width: 1100px;
+  align-items: flex-start;
+  justify-content: center;
+}
+.sidebar {
+  flex: 0 0 300px;
+  background: rgba(14, 39, 64, 0.5);
+  border: 1px solid rgba(143, 196, 238, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+.commander-photo {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1.5px solid rgba(143, 196, 238, 0.4);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 200px;
+}
+.commander-msg {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--blue-pale);
+  line-height: 1.5;
+  background: rgba(4, 10, 19, 0.6);
+  padding: 12px;
+  border-left: 3px solid var(--blue-light);
+  border-radius: 0 4px 4px 0;
+}
+.commander-msg.typing::after {
+  content: '█';
+  animation: blink 1s step-end infinite;
+  margin-left: 4px;
+  color: var(--blue-light);
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* ---------- GRID / FOLDERS ---------- */
+.grid-title{
+  font-family:'Share Tech Mono', monospace;
+  font-size:24px;
+  text-align:center;
+  color:var(--blue-pale);
+  margin-bottom:6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.grid-sub{
+  text-align:center;
+  color:var(--muted);
+  font-size:15px;
+  font-weight:500;
+  margin-bottom:35px;
+  padding: 0 10px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:24px 20px;
+  width:100%;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transform: scale(1);
+  transition: transform .3s cubic-bezier(.2,.8,.3,1);
+}
+.folder-tab {
+  width: 75%;
+  height: 24px;
+  background: var(--bg-panel);
+  border: 1.5px solid rgba(143,196,238,.2);
+  border-bottom: none;
+  border-radius: 6px 8px 0 0;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  margin-bottom: -1.5px;
+  position: relative;
+  z-index: 2;
+}
+.tab-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--blue-light);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.folder-body {
+  position: relative;
+  aspect-ratio: 1/1;
+  background: #000;
+  border: 1.5px solid rgba(143,196,238,.2);
+  border-radius: 0 8px 8px 8px;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  transition: box-shadow .35s ease;
+}
+
+.folder-body img {
+  width:100%;height:100%;object-fit:cover;
+  display:block;
+  filter:grayscale(.5) brightness(.28) blur(15px);
+  transform: scale(1.2);
+  transition:filter .35s ease, transform .35s ease;
+}
+.folder-body .badge{
+  position:absolute;bottom:8px;right:9px;
+  font-size:17px;
+  color:var(--gold);
+  opacity:0;
+  z-index: 3;
+  transition:opacity .3s ease;
+}
+
+/* Stavy složek */
+.tile.locked {cursor:default;}
+.tile.locked .folder-body::before{
+  content:"";
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.45);
+  z-index: 2;
+}
+.lockicon{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:24px;height:24px;
+  opacity:.6;
+  z-index:3;
+}
+.tile.needs_code {cursor:pointer;}
+.tile.needs_code .folder-body::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 2;
+}
+.needscode-text {
+  position: absolute; top: 68%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--blue-pale);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; 
+  letter-spacing: 0.05em;
+  z-index: 3;
+  width: 100%; text-align: center;
+  text-transform: uppercase;
+}
+.tile.needs_code:hover { transform:scale(1.02); }
+.tile.guessing .folder-body img {filter:grayscale(.2) brightness(.42) blur(15px);}
+.tile.guessing {cursor:pointer;}
+.tile.guessing:hover {transform:scale(1.045);}
+.tile.guessing:hover .folder-body {box-shadow:0 12px 30px rgba(63,127,192,.35);}
+.tile.guessing:hover .folder-body img {filter:grayscale(0) brightness(.58) blur(12px);}
+.tile.solved {cursor:pointer;}
+.tile.solved .folder-body img {filter:grayscale(0) brightness(.8) blur(0); transform: scale(1);}
+.tile.solved .folder-body::before {
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(to top, rgba(4,10,19,.55), transparent 45%);
+  z-index: 2;
+}
+.tile.solved .badge {opacity:1;}
+.tile.solved:hover {transform:scale(1.02);}
+
+/* ---------- MODAL ---------- */
+#modalBackdrop{
+  position:fixed;inset:0;
+  background:rgba(2,7,14,0);
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  pointer-events:none;
+  transition:background .35s ease;
+  overflow-y:auto;
+}
+#modalBackdrop.open{background:rgba(2,7,14,.85);pointer-events:auto;}
+
+.modal-card{
+  width:100%;
+  max-width:420px;
+  background:var(--bg-panel);
+  border:1px solid rgba(143,196,238,.15);
+  border-radius:10px;
+  padding:24px;
+  box-shadow:0 30px 80px rgba(0,0,0,.8);
+  transform:scale(.15);
+  transform-origin:var(--ox,50%) var(--oy,50%);
+  opacity:0;
+  transition:transform .45s cubic-bezier(.2,.8,.25,1), opacity .3s ease, width .35s ease;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  position: relative;
+}
+#modalBackdrop.open .modal-card{transform:scale(1);opacity:1;}
+
+.modal-card.modal-wide {
+  max-width: 780px;
+}
+
+.modal-split {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.modal-split-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* EXPERT CHAT UVNITŘ MODALU */
+.expert-chat-box {
+  background: rgba(4, 10, 19, 0.4);
+  border-left: 3px solid var(--blue-light);
+  padding: 16px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.expert-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.expert-header img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(143, 196, 238, 0.4);
+}
+.expert-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* Třídy pro expertní zprávy podobné zprávám velitele */
+.expert-msg-bubble {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--blue-pale);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+}
+.expert-msg-bubble.typing::after {
+  content: '█';
+  animation: blink 1s step-end infinite;
+  color: var(--blue-light);
+  margin-left: 4px;
+}
+
+.expert-evidence {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(143,196,238,.3);
+  display: none;
+  animation: fadein 0.6s ease;
+  margin-top: 10px;
+}
+
+.modal-photo{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:6px;
+  overflow:hidden;
+  margin-bottom:18px;
+  background:#000;
+}
+.modal-photo img{
+  width:100%;height:100%;object-fit:cover;
+  filter:blur(20px) grayscale(.3) brightness(.55);
+  transform:scale(1.12);
+  transition:filter 1s ease, transform 1s ease;
+}
+.modal-photo.hint1 img{filter:blur(12px) grayscale(.2) brightness(.65);}
+.modal-photo.hint2 img{filter:blur(6px) grayscale(.05) brightness(.8);}
+.modal-photo.revealed img{filter:none;transform:scale(1);}
+.modal-photo .stamp{
+  position:absolute;bottom:10px;right:10px;
+  font-family:'Share Tech Mono', monospace;
+  font-size:12px;
+  color:var(--blue-light);
+  background:rgba(4,10,19,.7);
+  border: 1px solid var(--blue-light);
+  padding:3px 10px;
+  opacity:0;transform:translateY(6px);
+  transition:all .6s ease .3s;
+  text-transform: uppercase;
+}
+.modal-photo.revealed .stamp{opacity:1;transform:translateY(0);}
+
+/* FOTOGRAFICKÁ MŘÍŽKA */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+.photo-grid-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  border: 1.5px solid rgba(143,196,238,.2);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.photo-grid-item:hover {
+  transform: scale(1.03);
+  border-color: var(--blue-light);
+  z-index: 2;
+}
+.photo-grid-item img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* LIGHTBOX PRO ZVĚTŠENÍ FOTEK */
+#lightbox {
+  position: fixed; inset: 0;
+  background: rgba(4,10,19,0.95);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  padding: 16px;
+}
+#lightbox.open { opacity: 1; pointer-events: auto; }
+#lightbox img {
+  max-width: 100%; max-height: 70vh;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  border: 1px solid rgba(143,196,238,.3);
+  object-fit: contain;
+}
+.lightbox-controls { margin-top: 20px; display: flex; width: 100%; max-width: 320px; }
+.lightbox-close {
+  position: absolute; top: 16px; right: 24px;
+  font-size: 40px; color: var(--blue-pale);
+  cursor: pointer; transition: color 0.2s;
+  z-index: 110;
+}
+.lightbox-close:hover { color: var(--blue-light); }
+
+.step-label{
+  font-family: 'Share Tech Mono', monospace;
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--blue-light);opacity:.75;margin-bottom:6px;
+}
+.prompt{
+  font-family:'Manrope', sans-serif;
+  font-size:17px;margin:0 0 14px;line-height:1.4;
+  color:var(--blue-pale);
+}
+
+/* INPUTS */
+input[type=text]{
+  width:100%;padding:12px 14px;
+  border:1.5px solid rgba(143,196,238,.3);
+  border-radius:4px;
+  font-family:'Manrope', sans-serif;
+  font-size:16px; 
+  background:rgba(4,10,19,.5);
+  color:var(--ink);
+  margin-bottom:12px;
+  -webkit-appearance: none;
+}
+input[type=text]::placeholder{color:var(--muted);}
+input[type=text]:focus{outline:none;border-color:var(--blue-light);}
+
+/* TLAČÍTKA */
+button{
+  font-family:'Manrope', sans-serif;
+  font-size:16px;letter-spacing:.03em;
+  background:var(--blue);
+  color:#04101c;
+  border:none;padding:12px 22px;border-radius:4px;
+  cursor:pointer;width:100%;font-weight:700;
+  transition:background .2s ease, transform .1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+button:hover{background:var(--blue-light);}
+button:active{transform:scale(.98);}
+button.ghost{
+  background:transparent;color:var(--blue-light);
+  border:1.5px solid rgba(143,196,238,.4);
+  margin-top: 8px;
+}
+button.ghost:hover{background:rgba(143,196,238,.08);}
+.row-btns{display:flex;gap:10px;width:100%;}
+.row-btns button{flex:1;}
+
+/* Speciální tlačítko pro GPS úkol */
+.geo-btn { background: var(--gold); }
+.geo-btn:hover { background: #ebd098; }
+.geo-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+/* Tlačítko stahování */
+.dl-btn { 
+  background: var(--blue-pale); 
+  text-decoration: none; 
+  display: inline-flex; 
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px; 
+  border-radius: 4px; 
+  font-weight: 700; 
+  color: #04101c; 
+  transition: all 0.2s; 
+  width: 100%;
+  text-align: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+.dl-btn:hover { background: #fff; }
+
+.message{font-size:15px;margin-top:10px;min-height:20px; font-weight: 500;}
+.message.err{color:#e59a9a;}
+.reveal-box{text-align:center;animation:fadein .5s ease;}
+.reveal-box .place{
+  font-family:'Manrope', sans-serif;
+  font-size:20px;color:var(--blue-pale);
+  margin:12px 0 18px;line-height:1.35;
+}
+@keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.shake{animation:shake .4s;}
+@keyframes shake{
+  10%,90%{transform:translateX(-2px);}
+  20%,80%{transform:translateX(4px);}
+  30%,50%,70%{transform:translateX(-8px);}
+  40%,60%{transform:translateX(8px);}
+}
+.modal-close{
+  position:absolute;top:-14px;right:-14px;
+  width:34px;height:34px;border-radius:50%;
+  background:var(--bg-panel);
+  border:1px solid rgba(143,196,238,.25);
+  color:var(--blue-pale);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;
+  z-index: 10;
+}
+
+/* ---------- FINALE ---------- */
+.finale-wrap{text-align:center;width:100%;max-width:460px; z-index: 10; position: relative;}
+.finale-wrap h2{
+  font-family:'Manrope', sans-serif;
+  font-size:28px;color:var(--blue-pale);margin:0 0 16px;
+}
+.finale-wrap p{font-size:17px;line-height:1.6;color:var(--ink);}
+.hearts{font-size:26px;letter-spacing:8px;color:var(--gold);margin-bottom:16px;}
+.finale-img{
+  width:100%;
+  max-width:320px;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:8px;
+  margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+#finaleLock input {
+  width:100%; max-width:300px;
+  margin:0 auto 16px; display:block;
+  text-align:center;
+}
+#finaleLock button {
+  width:100%; max-width:300px;
+  margin:0 auto; display:block;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 800px) {
+  .layout-container { flex-direction: column; gap: 24px; }
+  .sidebar { 
+    flex: none; 
+    width: 100%; 
+    flex-direction: row; 
+    align-items: center; 
+    gap: 16px;
+    padding: 16px;
+  }
+  .commander-photo { width: 70px; height: 70px; }
+  .messages-container { min-height: auto; flex: 1; }
+  .grid { gap: 16px 12px; }
+}
+
+@media (max-width: 650px) {
+  .modal-card.modal-wide { max-width: 420px; }
+  .modal-split { flex-direction: column; gap: 20px;}
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .six-number{font-size:120px;}
+  .agent-wrap { padding: 30px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ÚVOD -->
+<div id="introScreen" class="screen">
+  <div class="montage-stage" id="montageStage"></div>
+  <div class="six-wrap" id="sixWrap">
+    <div class="six-number" id="sixNumber">6</div>
+    <div class="six-caption">let spolu</div>
+    <div class="six-hint">klikni a začni</div>
+  </div>
+</div>
+
+<!-- OVĚŘENÍ AGENTA -->
+<div id="agentScreen" class="screen hidden">
+  <div class="agent-wrap">
+    <h2 class="agent-title">Vítej agentko 006</h2>
+    <p>Probíhá přístup do přísně tajného spisu. Pro ověření totožnosti zadej datum tvého výročí ve formátu ddmmrrrr.</p>
+    <input type="text" id="agentInput" placeholder="ddmmrrrr" autocomplete="off" maxlength="8" inputmode="numeric">
+    <button id="agentBtn" style="margin-top: 10px;">Ověřit identitu</button>
+    <div id="agentMsg" class="message"></div>
+  </div>
+</div>
+
+<!-- ROZLOŽENÍ -->
+<div id="gridScreen" class="screen hidden">
+  <div class="layout-container">
+    <div class="sidebar">
+      <div style="display: flex; align-items: center;">
+        <img id="commanderImg" src="https://placehold.co/400x400/0e2740/8fc4ee?text=Velitel" alt="Velitel" class="commander-photo">
+      </div>
+      <div class="messages-container" id="commanderMessages"></div>
+    </div>
+    <div class="main-content">
+      <div class="grid-title">Vyšetřovací spis</div>
+      <div class="grid-sub">Analyzuj zajištěné stopy a odhal historii subjektu.</div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FINÁLE -->
+<div id="finaleScreen" class="screen hidden">
+  <div id="finaleLock" class="finale-wrap">
+    <h2>Poslední dílek skládačky</h2>
+    <p style="margin-bottom:24px;">Došli jste na konec cesty. Zadej finální kód z poslední lokace pro odhalení celého případu.</p>
+    <input type="text" id="finaleCodeInput" placeholder="Zadej kód" autocomplete="off">
+    <button id="finaleUnlockBtn">Dekódovat finále</button>
+    <div id="finaleMsg" class="message"></div>
+  </div>
+  
+  <div id="finaleReveal" class="finale-wrap hidden">
+    <div class="hearts">&#10084; &#10084; &#10084; &#10084; &#10084; &#10084;</div>
+    <img id="finalePhoto" class="finale-img" src="">
+    <h2 id="finaleTitle"></h2>
+    <p id="finaleText"></p>
+  </div>
+</div>
+
+<div id="modalBackdrop">
+  <div class="modal-card" id="modalCard">
+    <div class="modal-close" id="modalClose">&times;</div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX PRO FOTKY -->
+<div id="lightbox">
+  <div class="lightbox-close" id="lbClose">&times;</div>
+  <img id="lbImg" src="" alt="Detail fotografie">
+  <div class="lightbox-controls">
+    <div id="lbDownload" class="dl-btn">Stáhnout fotografii</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   NASTAVENÍ LOKACÍ A FINÁLE
+   ============================================================ */
+const CONFIG = {
+  agentPassword: "15072020",
+  
+  stages: [
+    { 
+      photo:"https://imgur.com/byfCDcU.jpg", 
+      answers:["nejedla"], 
+      hint:"Mělo by jít o jistou pedagožku, která byla s naším subjektem v kontaktu již v jeho začátcích.", 
+      code:"BOBAN",
+      commanderMsg: [
+        "Výborně agentko, podařilo se nám odhalit z jaké fotografie pochází výstřižek. O identitě pachatele nám sice moc neříká ale...",
+        "Shodou okolností byla fotografie pořízena v objektu jež je úzce spjatý s jedním z našich informátorů, vyčkejte než Vás kontaktuje."
+      ],
+      label: "Identifikace osoby",
+      prompt: "Zjistěte totožnost ženy (zadejte příjmení):",
+      placeholder: "Příjmení",
+      expertName: "Forenzní Expert",
+      expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=EX",
+      expertMsg: [
+        "Dobrý den, agentko. Pomocí forenzních metod jsme se dopátrali první stopy, všechny nalezené důkazy směřují k této ženě. Zjistěte její totožnost a my se postaráme o zbytek."
+      ],
+      expertEvidencePhoto: "https://imgur.com/5XzwQAF.jpg"
+    },
+    { 
+      photo: "https://imgur.com/DaHBLW3.jpg", 
+      photos: [ 
+        "https://imgur.com/Q94DNR2.jpg",
+        "https://imgur.com/XfcOXWr.jpg",
+        "https://imgur.com/n7wDCEB.jpg",
+        "https://imgur.com/pm6VdlD.jpg",
+        "https://imgur.com/Ehit5od.jpg",
+        "https://imgur.com/kqSVXUW.jpg"
+      ],
+      type: "photo_grid",
+      answers: ["KODZMETADAT"], 
+      hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se do jejich Vlastností, nebo takzvaných EXIF metadat. Není tam napsáno něco navíc?", 
+      code: "OSLAVA2020", 
+      commanderMsg: [
+        "Skvělá práce, myslí Vám to... Zřejmě bude na místě přehodnocení výše mezd našich datových expertů.",
+        "Nyní Vám však analytické myšlení zřejmě příliš nepomůže, následující mise otestuje i Vaše fyzické kvality. Prosím přejděte k další stopě..."
+      ],
+      label: "Zajištěné fotografie", 
+      prompt: "Najděte další vodítko ukryté v digitální stopě fotografií:", 
+      placeholder: "Zadejte skrytý kód",
+      expertName: "Datový analytik",
+      expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=DA",
+      expertMsg: [
+        "Díky kódu, který jste získala od informátorky máme nyní přistup k databázi fotografií přímo z místa činu. I přes zapojení nejmodernějších metod umělé inteligence se nám však nepodařilo získat žádná další vodítka...",
+        "Agentko, myslím, že se nacházíme ve slepé uličce. Zasílám Vám fotografie, ale z hlediska vizuálního prohledání jsme je propátrali do nejmenších detailů... Napadá Vás něco?"
+      ]
+    },
+    { 
+      photo: "https://imgur.com/N5HHbJ4.jpg",
+      answers: [],
+      code: "KOD3",
+      commanderMsg: [
+        "Signál potvrzen, výborná práce přímo v terénu, agentko. Jste blíž, než si myslíte.",
+        "Díky našemu kryptografickému týmu jsme signál dešifrovali, to nám umožnilo jej sledovat. Další stopa však míří do ciziny, vypadá to že náš cíl se krátce po krádeži rozhodl vycestovat..."
+      ],
+      label: "Terénní analýza signálu", 
+      prompt: "Dostaňte se na určené místo a spusťte analýzu signálu.",
+      
+      expertName: "Kryptolog HQ",
+      expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=EX",
+      expertMsg: [
+        "Pomocí kódu, který jste získala z fotografie, se nám podařilo jej nalézt v šifrované komunikaci vyslané odněkud z regionu Ústeckého kraje, musí jít o výškovou budovu schopnou vysílat signál.",
+        "Díky analýze signálu jsme vytipovali tři místa odkud mohl signál vzejít. Vysíláme Vás do terénu agentko, dostaňte se na místo a spusťte analýzu, my Vám potvrdíme zda jde o shodu či nikoliv.\n\n1. 50.7930503N, 14.1085081E\n2. 50.6756544N, 14.0037250E\n3. 50.6389983N, 13.8596914E"
+      ],
+      
+      type: "geolocation", 
+      targetCoords: { lat: 50.7930503, lon: 14.1085081 },
+      tolerance: 200 
+    },
+    { photo:"https://placehold.co/600x600/0c2036/8fc4ee?text=Fotka+4", answers:["priklad4"], hint:"Nápověda k 4. stopě.", code:"KOD4", commanderMsg: ["Postupujete rychle."], label: "Analýza důkazu" },
+    { photo:"https://placehold.co/600x600/0c2036/8fc4ee?text=Fotka+5", answers:["priklad5"], hint:"Nápověda k 5. stopě.", code:"KOD5", commanderMsg: ["Blížíte se k cíli, agentko."], label: "Analýza důkazu" },
+    { photo:"https://placehold.co/600x600/0c2036/8fc4ee?text=Fotka+6", answers:["priklad6"], hint:"Nápověda k 6. stopě.", code:"KOD6", commanderMsg: ["Poslední cíl lokalizován. Připravte se na finále."], label: "Poslední cíl" }
+  ],
+  finalePhoto: "https://placehold.co/800x800/0c2036/8fc4ee?text=Nase+Spolecna+Fotka",
+  finaleTitle: "Mise úspěšná: Subjekt identifikován.",
+  finaleText: "Šest let vyšetřování potvrdilo to nejdůležitější – jsi to ty. Připrav se na večerní debriefing (a oslavu)."
+};
+
+const COMMANDER_INTRO = [
+  "Vítejte agentko 006, je mi ctí, že vyslali pro tento případ právě Vás. Pojďme Vás uvést do děje...",
+  "Vám přidělený případ se zabývá mužem podezřelým ze závažného činu loupeže. V tuto chvíli Vám ale nemohu sdělit co přesně bylo jejím cílem. Prosím, naši experti pro Vás byli schopni připravit první stopu. Pusťte se do práce agentko, hodně štěstí!"
+];
+
+const MONTAGE_PHOTOS = [
+  "https://imgur.com/lfHwTlR.jpg", "https://imgur.com/Op2Ve8W.jpg", "https://imgur.com/BB13iTC.jpg", "https://imgur.com/ae1G1mQ.jpg",
+  "https://imgur.com/BuGmsQN.jpg", "https://imgur.com/WyvPftC.jpg", "https://imgur.com/xJ4fPbz.jpg", "https://imgur.com/TQTBfu2.jpg",
+  "https://imgur.com/UezJgoX.jpg", "https://imgur.com/UgWb8eQ.jpg", "https://imgur.com/kfznKOM.jpg", "https://imgur.com/H8bqjZL.jpg",
+  "https://imgur.com/Rmfg0U4.jpg", "https://imgur.com/58BX28p.jpg", "https://imgur.com/fCZMcU7.jpg", "https://imgur.com/AdFy96T.jpg",
+  "https://imgur.com/4NDC586.jpg", "https://imgur.com/dWZhFda.jpg", "https://imgur.com/8QiLwun.jpg", "https://imgur.com/g0lbv8x.jpg",
+  "https://imgur.com/AP8hOee.jpg", "https://imgur.com/oIEmxOj.jpg", "https://imgur.com/C8hAji7.jpg", "https://imgur.com/RdjJJSC.jpg",
+  "https://imgur.com/XHaqmwN.jpg", "https://imgur.com/VWtL1JF.jpg", "https://imgur.com/yaZuYY5.jpg", "https://imgur.com/yaZuYY5.jpg",
+  "https://imgur.com/VpEJkiJ.jpg", "https://imgur.com/GDF5FVw.jpg", "https://imgur.com/XXUwbGT.jpg"
+];
+
+const norm = s => (s||"").toString().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/\s+/g," ");
+
+let tileStates = ['guessing', 'locked', 'locked', 'locked', 'locked', 'locked'];
+let finaleReached = false; 
+let finaleUnlocked = false;
+let modal = { stageIndex: null, state: null, hintLevel: 0 };
+
+let commanderTypingTimeout = null;
+let modalTypingTimeout = null;
+
+/* ---------- INTRO MONTAGE ---------- */
+function runMontage(){
+  const stage = document.getElementById("montageStage");
+  stage.innerHTML = MONTAGE_PHOTOS.map(src => `<img src="${src}">`).join("");
+  const imgs = stage.querySelectorAll("img");
+  let i = 0;
+  const showNext = () => {
+    if(i > 0) imgs[i-1].classList.remove("flash");
+    imgs[i].classList.add("flash");
+    i++;
+    if(i < imgs.length){
+      setTimeout(showNext, 190);
+    } else {
+      stage.classList.add("settled");
+      setTimeout(()=>{
+        document.getElementById("sixWrap").classList.add("show");
+      }, 250);
+    }
+  };
+  setTimeout(showNext, 300);
+}
+
+document.getElementById("sixNumber").addEventListener("click", ()=>{
+  const sixWrap = document.getElementById("sixWrap");
+  if(!sixWrap.classList.contains("show")) return;
+  const intro = document.getElementById("introScreen");
+  const agentScreen = document.getElementById("agentScreen");
+  
+  intro.classList.add("leaving");
+  agentScreen.classList.remove("hidden");
+  
+  setTimeout(()=>{
+    intro.classList.add("hidden");
+    agentScreen.classList.add("enter");
+    document.getElementById("agentInput").focus();
+  }, 700);
+});
+runMontage();
+
+/* ---------- AGENT VERIFICATION ---------- */
+function verifyAgent() {
+  const val = document.getElementById("agentInput").value.trim();
+  if (val === CONFIG.agentPassword) {
+    const agent = document.getElementById("agentScreen");
+    const grid = document.getElementById("gridScreen");
+
+    agent.classList.remove("enter");
+    setTimeout(() => {
+      agent.classList.add("hidden");
+      renderGrid();
+      grid.classList.remove("hidden");
+      requestAnimationFrame(()=> requestAnimationFrame(()=> {
+        grid.classList.add("enter");
+        startCommanderTransmission(COMMANDER_INTRO);
+      }));
+    }, 500);
+  } else {
+    const msg = document.getElementById("agentMsg");
+    msg.className = "message err";
+    msg.textContent = "Přístup odepřen. Chybné datum.";
+  }
+}
+
+document.getElementById("agentBtn").addEventListener("click", verifyAgent);
+document.getElementById("agentInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") verifyAgent();
+});
+
+/* ---------- ZPRÁVY VELITELE ---------- */
+function startCommanderTransmission(msgs) {
+  const container = document.getElementById("commanderMessages");
+  container.innerHTML = "";
+  clearTimeout(commanderTypingTimeout);
+  
+  function typeNextMessage(idx) {
+    if (idx >= msgs.length) return;
+    
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "commander-msg typing";
+    container.appendChild(msgDiv);
+    
+    const text = msgs[idx];
+    let charIdx = 0;
+    
+    function typeChar() {
+      if (charIdx < text.length) {
+        msgDiv.textContent += text.charAt(charIdx);
+        charIdx++;
+        commanderTypingTimeout = setTimeout(typeChar, 35);
+      } else {
+        msgDiv.classList.remove("typing");
+        commanderTypingTimeout = setTimeout(() => typeNextMessage(idx + 1), 1800);
+      }
+    }
+    typeChar();
+  }
+  typeNextMessage(0);
+}
+
+/* ---------- TYPING ZPRÁVY EXPERTA V MODALU ---------- */
+function typeModalExpertMessages(msgs, hasPhoto) {
+  const container = document.getElementById("modalExpertMessages");
+  if(!container) return;
+  container.innerHTML = "";
+  clearTimeout(modalTypingTimeout);
+  
+  function typeNextMessage(idx) {
+    if (idx >= msgs.length) {
+      const evImg = document.getElementById("expertEvidence");
+      if (evImg && hasPhoto) {
+        evImg.style.display = "block";
+      }
+      return;
+    }
+    
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "expert-msg-bubble typing";
+    container.appendChild(msgDiv);
+    
+    const text = msgs[idx];
+    let charIdx = 0;
+    
+    function typeChar() {
+      if(!document.getElementById("modalExpertMessages")) return;
+      if (charIdx < text.length) {
+        msgDiv.textContent += text.charAt(charIdx);
+        charIdx++;
+        modalTypingTimeout = setTimeout(typeChar, 35);
+      } else {
+        msgDiv.classList.remove("typing");
+        modalTypingTimeout = setTimeout(() => typeNextMessage(idx + 1), 1000);
+      }
+    }
+    typeChar();
+  }
+  typeNextMessage(0);
+}
+
+/* ---------- GRID S PŘÍPADY ---------- */
+function renderGrid(){
+  if (finaleReached) {
+    document.getElementById("gridScreen").classList.add("hidden");
+    document.getElementById("finaleScreen").classList.remove("hidden");
+    renderFinale();
+    return;
+  }
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = CONFIG.stages.map((s,i)=>{
+    const state = tileStates[i];
+    const caseNum = String(i+1).padStart(2, '0');
+    let inner = `<div class="folder-tab"><span class="tab-text">Stopa ${caseNum}</span></div>`;
+    
+    if (state === 'locked') {
+      inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#8fc4ee" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>`;
+    } else if (state === 'needs_code') {
+      inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#8fc4ee" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div class="needscode-text">Zadej kód</div></div>`;
+    } else if (state === 'guessing') {
+      inner += `<div class="folder-body"><img src="${s.photo}"></div>`;
+    } else if (state === 'solved') {
+      inner += `<div class="folder-body"><img src="${s.photo}"><div class="badge">&#10084;</div></div>`;
+    }
+    
+    return `<div class="tile ${state}" data-index="${i}">${inner}</div>`;
+  }).join("");
+  
+  grid.querySelectorAll(".tile").forEach(tile=>{
+    const idx = parseInt(tile.dataset.index);
+    const state = tileStates[idx];
+    if(state !== 'locked') {
+      tile.addEventListener("click", ()=> openModal(idx, tile));
+    }
+  });
+}
+
+/* ---------- MODAL ---------- */
+function openModal(idx, tileEl){
+  const rect = tileEl.getBoundingClientRect();
+  const ox = ((rect.left + rect.width/2) / window.innerWidth) * 100;
+  const oy = ((rect.top + rect.height/2) / window.innerHeight) * 100;
+  const card = document.getElementById("modalCard");
+  card.style.setProperty("--ox", ox + "%");
+  card.style.setProperty("--oy", oy + "%");
+
+  modal.stageIndex = idx;
+  modal.state = tileStates[idx];
+  modal.hintLevel = 0;
+
+  const stage = CONFIG.stages[idx];
+  
+  if (modal.state === "guessing" && stage.expertMsg) {
+    card.classList.add("modal-wide");
+  } else {
+    card.classList.remove("modal-wide");
+  }
+
+  document.getElementById("modalBackdrop").classList.add("open");
+  renderModal();
+}
+
+function closeModal(){
+  document.getElementById("modalBackdrop").classList.remove("open");
+  modal.stageIndex = null;
+  if(finaleReached) {
+    setTimeout(renderGrid, 300);
+  }
+}
+
+document.getElementById("modalClose").addEventListener("click", closeModal);
+document.getElementById("modalBackdrop").addEventListener("click", (e)=>{
+  if(e.target.id === "modalBackdrop") closeModal();
+});
+
+/* LIGHTBOX INTERAKCE */
+let currentOpenPhotoUrl = "";
+
+function openLightbox(src) {
+  const lb = document.getElementById("lightbox");
+  currentOpenPhotoUrl = src;
+  document.getElementById("lbImg").src = src;
+  lb.classList.add("open");
+}
+document.getElementById("lbClose").addEventListener("click", () => {
+  document.getElementById("lightbox").classList.remove("open");
+});
+
+/* JS stahování přes Blob (stáhne fotku napřímo bez otevírání nové záložky s Imgurem) */
+document.getElementById("lbDownload").addEventListener("click", () => {
+  if (!currentOpenPhotoUrl) return;
+  
+  const originalBtnText = document.getElementById("lbDownload").textContent;
+  document.getElementById("lbDownload").textContent = "Stahování...";
+
+  fetch(currentOpenPhotoUrl)
+    .then(response => response.blob())
+    .then(blob => {
+      const blobUrl = window.URL.createObjectURL(blob);
+      const tempLink = document.createElement("a");
+      tempLink.href = blobUrl;
+      tempLink.download = "stopa.jpg";
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+      window.URL.revokeObjectURL(blobUrl);
+      document.getElementById("lbDownload").textContent = originalBtnText;
+    })
+    .catch(err => {
+      console.error("Chyba při přímém stahování:", err);
+      // Fallback pokud by selhalo CORS nastavení Imguru u konkrétního prohlížeče
+      window.open(currentOpenPhotoUrl, "_blank");
+      document.getElementById("lbDownload").textContent = originalBtnText;
+    });
+});
+
+function renderModal(){
+  const idx = modal.stageIndex;
+  const stage = CONFIG.stages[idx];
+  const content = document.getElementById("modalContent");
+
+  // STAV 1: VYŽADUJE KÓD
+  if(modal.state === "needs_code"){
+    content.innerHTML = `
+      <div class="step-label">Ověření protokolu</div>
+      <p class="prompt">Zadej kód, který jsi získala od <strong>informátora</strong> pro odemčení této stopy.</p>
+      <input type="text" id="codeInput" placeholder="Přístupový kód" autocomplete="off">
+      <button id="unlockBtn">Ověřit a pokračovat</button>
+      <div class="message" id="msg"></div>
+    `;
+    document.getElementById("unlockBtn").addEventListener("click", () => checkCode(idx));
+    const inp = document.getElementById("codeInput");
+    inp.addEventListener("keydown", e => { if(e.key==="Enter") checkCode(idx); });
+    inp.focus();
+    return;
+  }
+
+  // STAV 2: HÁDÁNÍ LOKACE / OSOBY / POLOHY / FOTEK
+  if(modal.state === "guessing"){
+    const cls = modal.hintLevel >= 2 ? "hint2" : (modal.hintLevel >= 1 ? "hint1" : "");
+    const label = stage.label || "Lokalizace stopy";
+    const prompt = stage.prompt || "Kde se odehrála tato část historie?";
+    const placeholder = stage.placeholder || "Název lokace";
+
+    let expertHTML = "";
+    if (stage.expertMsg) {
+      let imgHTML = stage.expertEvidencePhoto ? `<img src="${stage.expertEvidencePhoto}" id="expertEvidence" class="expert-evidence">` : "";
+      expertHTML = `
+        <div class="modal-split-half">
+          <div class="expert-chat-box">
+            <div class="expert-header">
+              <img src="${stage.expertImg}" alt="${stage.expertName}">
+              <div class="expert-name">${stage.expertName}</div>
+            </div>
+            <div id="modalExpertMessages"></div>
+            ${imgHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    let inputAreaHTML = "";
+    if (stage.type === "geolocation") {
+      inputAreaHTML = `<button id="geoAnalyzeBtn" class="geo-btn">Spustit analýzu polohy</button>`;
+    } else {
+      inputAreaHTML = `
+        <input type="text" id="guessInput" placeholder="${placeholder}" autocomplete="off">
+        <div class="row-btns">
+          <button id="guessBtn">Potvrdit</button>
+          <button class="ghost" id="hintBtn">Nápověda</button>
+        </div>`;
+    }
+
+    let puzzleHTML = "";
+    
+    if (stage.type === "photo_grid") {
+      const gridHTML = stage.photos.map(p => `
+        <div class="photo-grid-item" onclick="openLightbox('${p}')">
+          <img src="${p}">
+        </div>
+      `).join("");
+      
+      puzzleHTML = `
+        <div class="modal-split-half">
+          <div class="photo-grid">
+            ${gridHTML}
+          </div>
+          <div class="step-label">${label}</div>
+          <p class="prompt">${prompt}</p>
+          ${inputAreaHTML}
+          <div class="message" id="msg"></div>
+        </div>
+      `;
+    } else {
+      puzzleHTML = `
+        <div class="modal-split-half">
+          <div class="modal-photo ${cls}" id="modalPhoto">
+            <img src="${stage.photo}">
+          </div>
+          <div class="step-label">${label}</div>
+          <p class="prompt">${prompt}</p>
+          ${inputAreaHTML}
+          <div class="message" id="msg"></div>
+        </div>
+      `;
+    }
+
+    if (stage.expertMsg) {
+      content.innerHTML = `<div class="modal-split">${expertHTML}${puzzleHTML}</div>`;
+      typeModalExpertMessages(stage.expertMsg, !!stage.expertEvidencePhoto);
+    } else {
+      content.innerHTML = puzzleHTML;
+    }
+    
+    if (stage.type === "geolocation") {
+      document.getElementById("geoAnalyzeBtn").addEventListener("click", startGeoAnalysis);
+    } else {
+      document.getElementById("guessBtn").addEventListener("click", checkGuess);
+      document.getElementById("hintBtn").addEventListener("click", showHint);
+      const inp = document.getElementById("guessInput");
+      inp.addEventListener("keydown", e => { if(e.key==="Enter") checkGuess(); });
+      inp.focus();
+    }
+    return;
+  }
+
+  // STAV 3: UHODNUTO
+  if(modal.state === "solved"){
+    content.innerHTML = `
+      <div class="modal-photo revealed">
+        <img src="${stage.photo}">
+        <div class="stamp">Důkaz zajištěn</div>
+      </div>
+      <div class="reveal-box">
+        <div class="step-label">Úspěch</div>
+        <div class="place">Úkol v této složce splněn. Pokračujte.</div>
+        <button class="ghost" id="closeModalBtn" style="margin-top:16px;">Zavřít stopu</button>
+      </div>
+    `;
+    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+    return;
+  }
+}
+
+function showHint(){
+  const stage = CONFIG.stages[modal.stageIndex];
+  modal.hintLevel = Math.min(modal.hintLevel + 1, 2);
+  renderModal();
+  const msg = document.getElementById("msg");
+  msg.className = "message";
+  msg.textContent = stage.hint;
+}
+
+function checkCode(idx){
+  const stage = CONFIG.stages[idx]; 
+  const val = norm(document.getElementById("codeInput").value);
+  const ok = norm(stage.code) === val;
+  
+  if(ok){
+    tileStates[idx] = "guessing";
+    modal.state = "guessing";
+    renderGrid(); 
+    
+    const card = document.getElementById("modalCard");
+    if (stage.expertMsg) card.classList.add("modal-wide");
+    
+    renderModal(); 
+  } else {
+    const msg = document.getElementById("msg");
+    msg.className = "message err";
+    msg.textContent = "Kód nebyl přijat. Zkus to znovu.";
+  }
+}
+
+function markStageAsSolved(idx) {
+  const stage = CONFIG.stages[idx];
+  tileStates[idx] = "solved";
+  modal.state = "solved";
+  
+  if (idx + 1 < CONFIG.stages.length) {
+      if(tileStates[idx+1] === "locked") {
+          tileStates[idx+1] = "needs_code";
+      }
+  } else {
+      finaleReached = true;
+  }
+
+  renderGrid(); 
+  document.getElementById("modalCard").classList.remove("modal-wide");
+  renderModal();
+  
+  if (stage.commanderMsg) {
+     startCommanderTransmission(stage.commanderMsg);
+  }
+}
+
+function checkGuess(){
+  const idx = modal.stageIndex;
+  const stage = CONFIG.stages[idx];
+  const val = norm(document.getElementById("guessInput").value);
+  const ok = stage.answers.some(a => norm(a) === val);
+  
+  if(ok){
+    markStageAsSolved(idx);
+  } else {
+    const msg = document.getElementById("msg");
+    msg.className = "message err";
+    msg.textContent = "Data se neshodují. Zkus to znovu.";
+    
+    const frame = document.getElementById("modalPhoto") || document.querySelector(".photo-grid");
+    if (frame) {
+      frame.classList.add("shake");
+      setTimeout(()=>frame.classList.remove("shake"), 400);
+    }
+  }
+}
+
+/* ---------- GEOLOKACE ---------- */
+function startGeoAnalysis() {
+  const btn = document.getElementById("geoAnalyzeBtn");
+  const msg = document.getElementById("msg");
+  
+  btn.disabled = true;
+  btn.innerHTML = "Navazuji spojení se satelitem... <span class='blink'>_</span>";
+  msg.className = "message";
+  msg.textContent = "";
+
+  if (!navigator.geolocation) {
+    msg.className = "message err";
+    msg.textContent = "Vaše zařízení nepodporuje určení polohy.";
+    btn.disabled = false;
+    btn.textContent = "Spustit analýzu polohy";
+    return;
+  }
+
+  setTimeout(() => {
+    btn.innerHTML = "Analyzuji souřadnice... <span class='blink'>_</span>";
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        evaluateGeoMatch(lat, lon);
+      },
+      (error) => {
+        msg.className = "message err";
+        msg.textContent = "Nepodařilo se získat polohu. Máte zapnutou GPS a povolili jste přístup webu?";
+        btn.disabled = false;
+        btn.textContent = "Spustit analýzu polohy";
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, 1800);
+}
+
+function evaluateGeoMatch(lat, lon) {
+  const btn = document.getElementById("geoAnalyzeBtn");
+  const stage = CONFIG.stages[modal.stageIndex];
+  
+  const R = 6371; 
+  const dLat = (stage.targetCoords.lat - lat) * (Math.PI/180);
+  const dLon = (stage.targetCoords.lon - lon) * (Math.PI/180); 
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat * (Math.PI/180)) * Math.cos(stage.targetCoords.lat * (Math.PI/180)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c * 1000; 
+
+  const tolerance = stage.tolerance || 500;
+
+  if (distance <= tolerance) {
+    markStageAsSolved(modal.stageIndex);
+  } else {
+    const msg = document.getElementById("msg");
+    msg.className = "message err";
+    msg.textContent = `Neshoda. Vyzařování z tohoto místa se nepotvrdilo (odchylka cca ${Math.round(distance)} m).`;
+    btn.disabled = false;
+    btn.textContent = "Spustit analýzu polohy";
+    
+    const frame = document.getElementById("modalPhoto");
+    if (frame) {
+      frame.classList.add("shake");
+      setTimeout(()=>frame.classList.remove("shake"), 400);
+    }
+  }
+}
+
+/* ---------- FINALE LOGIKA ---------- */
+function renderFinale(){
+  if(finaleUnlocked){
+    document.getElementById("finaleLock").classList.add("hidden");
+    document.getElementById("finaleReveal").classList.remove("hidden");
+    document.getElementById("finaleTitle").textContent = CONFIG.finaleTitle;
+    document.getElementById("finaleText").textContent = CONFIG.finaleText;
+    document.getElementById("finalePhoto").src = CONFIG.finalePhoto;
+  } else {
+    document.getElementById("finaleLock").classList.remove("hidden");
+    document.getElementById("finaleReveal").classList.add("hidden");
+  }
+}
+
+function checkFinaleCode() {
+  const val = norm(document.getElementById("finaleCodeInput").value);
+  const lastStage = CONFIG.stages[CONFIG.stages.length - 1]; 
+  
+  if(val === norm(lastStage.code)){
+    finaleUnlocked = true;
+    renderFinale();
+  } else {
+    const msg = document.getElementById("finaleMsg");
+    msg.className = "message err";
+    msg.textContent = "Neplatný autorizační kód.";
+  }
+}
+
+document.getElementById("finaleUnlockBtn").addEventListener("click", checkFinaleCode);
+document.getElementById("finaleCodeInput").addEventListener("keydown", e => { 
+  if(e.key==="Enter") checkFinaleCode(); 
+});
+</script>
+</body>
+</html>
