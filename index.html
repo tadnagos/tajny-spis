@@ -836,7 +836,6 @@ const CONFIG = {
       photo:"https://imgur.com/byfCDcU.jpg", 
       answers:["nejedla"], 
       hint:"Mělo by jít o jistou pedagožku, která byla s naším subjektem v kontaktu již v jeho začátcích.", 
-      code:"BOBAN",
       commanderMsg: [
         "Výborně agentko, podařilo se nám odhalit z jaké fotografie pochází výstřižek. O identitě pachatele nám sice moc neříká ale...",
         "Shodou okolností byla fotografie pořízena v objektu jež je úzce spjatý s jedním z našich informátorů, vyčkejte než Vás kontaktuje."
@@ -862,7 +861,7 @@ const CONFIG = {
         "obrazky/3.jpg"
       ],
       type: "photo_grid",
-      answers: ["KODZMETADAT"], 
+      answers: ["20141519"], 
       hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se zda tam napsáno něco navíc?", 
       code: "OSLAVA2020", 
       commanderMsg: [
@@ -1214,6 +1213,18 @@ function renderModal(){
   const idx = modal.stageIndex;
   const stage = CONFIG.stages[idx];
   const content = document.getElementById("modalContent");
+
+  // STAV 0: JIŽ VYŘEŠENO — jen zobraz odkrytou fotku, nic víc
+  if(modal.state === "solved"){
+    content.innerHTML = `
+      <div class="modal-photo revealed" id="modalPhoto" style="cursor:zoom-in;margin-bottom:0;">
+        <img src="${stage.photo}">
+        <div class="stamp">Vyřešeno</div>
+      </div>
+    `;
+    document.getElementById("modalPhoto").addEventListener("click", ()=> openLightbox(stage.photo));
+    return;
+  }
 
   // STAV 1: VYŽADUJE KÓD
   if(modal.state === "needs_code"){
