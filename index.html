@@ -203,6 +203,9 @@ body::after{
   gap: 16px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.4);
 }
+.commander-photo-wrap {
+  flex-shrink: 0;
+}
 .commander-photo {
   width: 100%;
   aspect-ratio: 1/1;
@@ -210,6 +213,12 @@ body::after{
   object-fit: cover;
   border: 1.5px solid rgba(143, 196, 238, 0.4);
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.commander-photo:hover {
+  transform: scale(1.03);
+  border-color: var(--blue-light);
 }
 .messages-container {
   display: flex;
@@ -443,15 +452,22 @@ body::after{
   margin-bottom: 10px;
 }
 .expert-header img {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(143, 196, 238, 0.4);
+  border: 1.5px solid rgba(143, 196, 238, 0.4);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.expert-header img:hover {
+  transform: scale(1.05);
+  border-color: var(--blue-light);
 }
 .expert-name {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--gold);
   text-transform: uppercase;
 }
@@ -706,7 +722,7 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
     flex: none; 
     width: 100%; 
     flex-direction: row; 
-    align-items: center; 
+    align-items: flex-start; /* FIX VELITELE VLEVO NAHORE */
     gap: 16px;
     padding: 16px;
   }
@@ -761,8 +777,8 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
 <div id="gridScreen" class="screen hidden">
   <div class="layout-container">
     <div class="sidebar">
-      <div style="display: flex; align-items: center;">
-        <img id="commanderImg" src="https://placehold.co/400x400/0e2740/8fc4ee?text=Velitel" alt="Velitel" class="commander-photo">
+      <div class="commander-photo-wrap">
+        <img id="commanderImg" src="https://placehold.co/400x400/0e2740/8fc4ee?text=Velitel" alt="Velitel" class="commander-photo" onclick="openLightbox(this.src)">
       </div>
       <div class="messages-container" id="commanderMessages"></div>
     </div>
@@ -838,16 +854,16 @@ const CONFIG = {
     { 
       photo: "https://imgur.com/DaHBLW3.jpg", 
       photos: [ 
-        "https://imgur.com/Q94DNR2.jpg",
-        "https://imgur.com/XfcOXWr.jpg",
-        "https://imgur.com/n7wDCEB.jpg",
-        "https://imgur.com/pm6VdlD.jpg",
-        "https://imgur.com/Ehit5od.jpg",
-        "https://imgur.com/kqSVXUW.jpg"
+        "obrazky/1.jpg",
+        "obrazky/2.jpg",
+        "obrazky/6.jpg",
+        "obrazky/5.jpg",
+        "obrazky/4.jpg",
+        "obrazky/3.jpg"
       ],
       type: "photo_grid",
       answers: ["KODZMETADAT"], 
-      hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se do jejich Vlastností, nebo takzvaných EXIF metadat. Není tam napsáno něco navíc?", 
+      hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se zda tam napsáno něco navíc?", 
       code: "OSLAVA2020", 
       commanderMsg: [
         "Skvělá práce, myslí Vám to... Zřejmě bude na místě přehodnocení výše mezd našich datových expertů.",
@@ -860,7 +876,7 @@ const CONFIG = {
       expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=DA",
       expertMsg: [
         "Díky kódu, který jste získala od informátorky máme nyní přistup k databázi fotografií přímo z místa činu. I přes zapojení nejmodernějších metod umělé inteligence se nám však nepodařilo získat žádná další vodítka...",
-        "Agentko, myslím, že se nacházíme ve slepé uličce. Zasílám Vám fotografie, ale z hlediska vizuálního prohledání jsme je propátrali do nejmenších detailů... Napadá Vás něco?"
+        "Agentko, myslím, že se nacházíme ve slepé uličce. Zasílám Vám fotografie, ale z vizuálního hlediska jsme je propátrali do nejmenších detailů... Napadá Vás něco?"
       ]
     },
     { 
@@ -877,7 +893,7 @@ const CONFIG = {
       expertName: "Kryptolog HQ",
       expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=EX",
       expertMsg: [
-        "Pomocí kódu, který jste získala z fotografie, se nám podařilo jej nalézt v šifrované komunikaci vyslané odněkud z regionu Ústeckého kraje, musí jít o výškovou budovu schopnou vysílat signál.",
+        "Pomocí kódu, který jste získala z fotografie, se nám podařilo nalézt jej v šifrované komunikaci vyslané odněkud z regionu Ústeckého kraje, musí jít o výškovou budovu schopnou vysílat signál.",
         "Díky analýze signálu jsme vytipovali tři místa odkud mohl signál vzejít. Vysíláme Vás do terénu agentko, dostaňte se na místo a spusťte analýzu, my Vám potvrdíme zda jde o shodu či nikoliv.\n\n1. 50.7930503N, 14.1085081E\n2. 50.6756544N, 14.0037250E\n3. 50.6389983N, 13.8596914E"
       ],
       
@@ -921,7 +937,7 @@ let commanderTypingTimeout = null;
 let modalTypingTimeout = null;
 
 /* ---------- INTRO MONTAGE ---------- */
-function runMontage(){
+function runMontage() {
   const stage = document.getElementById("montageStage");
   stage.innerHTML = MONTAGE_PHOTOS.map(src => `<img src="${src}">`).join("");
   const imgs = stage.querySelectorAll("img");
@@ -942,6 +958,27 @@ function runMontage(){
   setTimeout(showNext, 300);
 }
 
+function preloadImagesAndStart() {
+  let loaded = 0;
+  const total = MONTAGE_PHOTOS.length;
+  
+  MONTAGE_PHOTOS.forEach(src => {
+    const img = new Image();
+    
+    img.onload = img.onerror = () => {
+      loaded++;
+      if (loaded === total) {
+        runMontage(); // Spustí animaci až když je vše staženo
+      }
+    };
+    
+    img.src = src;
+  });
+}
+
+// Spustíme přednačítání
+preloadImagesAndStart();
+
 document.getElementById("sixNumber").addEventListener("click", ()=>{
   const sixWrap = document.getElementById("sixWrap");
   if(!sixWrap.classList.contains("show")) return;
@@ -957,7 +994,6 @@ document.getElementById("sixNumber").addEventListener("click", ()=>{
     document.getElementById("agentInput").focus();
   }, 700);
 });
-runMontage();
 
 /* ---------- AGENT VERIFICATION ---------- */
 function verifyAgent() {
@@ -1209,7 +1245,7 @@ function renderModal(){
         <div class="modal-split-half">
           <div class="expert-chat-box">
             <div class="expert-header">
-              <img src="${stage.expertImg}" alt="${stage.expertName}">
+              <img src="${stage.expertImg}" alt="${stage.expertName}" onclick="openLightbox(this.src)">
               <div class="expert-name">${stage.expertName}</div>
             </div>
             <div id="modalExpertMessages"></div>
@@ -1283,23 +1319,6 @@ function renderModal(){
     }
     return;
   }
-
-  // STAV 3: UHODNUTO
-  if(modal.state === "solved"){
-    content.innerHTML = `
-      <div class="modal-photo revealed">
-        <img src="${stage.photo}">
-        <div class="stamp">Důkaz zajištěn</div>
-      </div>
-      <div class="reveal-box">
-        <div class="step-label">Úspěch</div>
-        <div class="place">Úkol v této složce splněn. Pokračujte.</div>
-        <button class="ghost" id="closeModalBtn" style="margin-top:16px;">Zavřít stopu</button>
-      </div>
-    `;
-    document.getElementById("closeModalBtn").addEventListener("click", closeModal);
-    return;
-  }
 }
 
 function showHint(){
@@ -1335,20 +1354,25 @@ function checkCode(idx){
 function markStageAsSolved(idx) {
   const stage = CONFIG.stages[idx];
   tileStates[idx] = "solved";
-  modal.state = "solved";
   
   if (idx + 1 < CONFIG.stages.length) {
       if(tileStates[idx+1] === "locked") {
-          tileStates[idx+1] = "needs_code";
+          // Třetí stopa (index 2) se odemkne přímo do hádání, nepotřebuje kód
+          if (idx + 1 === 2) {
+              tileStates[idx+1] = "guessing";
+          } else {
+              tileStates[idx+1] = "needs_code";
+          }
       }
   } else {
       finaleReached = true;
   }
 
+  // Překreslí panel vzadu a automaticky okno ZAVŘE
   renderGrid(); 
-  document.getElementById("modalCard").classList.remove("modal-wide");
-  renderModal();
+  closeModal(); 
   
+  // Spustí velitelovu zprávu v pozadí (kterou si teď může rovnou číst)
   if (stage.commanderMsg) {
      startCommanderTransmission(stage.commanderMsg);
   }
@@ -1399,6 +1423,7 @@ function startGeoAnalysis() {
       (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
+        // console.log("Current pos:", lat, lon);
         evaluateGeoMatch(lat, lon);
       },
       (error) => {
