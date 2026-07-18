@@ -453,8 +453,27 @@ body::after{
 .map-layout-container { display: flex; gap: 24px; width: 100%; height: 100%; min-height: 0; }
 .map-col-left { flex: 3.5; display: flex; flex-direction: column; min-width: 300px; min-height: 0; }
 .map-col-right { flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-.map-interactive-wrapper { position: relative; width: 100%; flex: 1; min-height: 0; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid rgba(143,196,238,.3); overflow: auto; -webkit-overflow-scrolling: touch; }
-.map-image-container { position: relative; display: block; width: 100%; min-width: 800px; cursor: crosshair; }
+.map-interactive-wrapper { 
+  position: relative; 
+  width: 100%; 
+  flex: 1; 
+  min-height: 0; 
+  background: rgba(0,0,0,0.5); 
+  border-radius: 8px; 
+  border: 1px solid rgba(143,196,238,.3); 
+  overflow: hidden; /* Změna z auto na hidden, schová přetečení přiblížené mapy */
+  touch-action: none; /* ŽIVOTNĚ DŮLEŽITÉ: Zakáže nativní přibližování stránky na telefonech nad mapou */
+  user-select: none; /* Zabrání nechtěnému označování textu při tažení */
+}
+.map-image-container { 
+  position: relative; 
+  display: block; 
+  width: 100%; 
+  min-width: 800px; 
+  cursor: crosshair; 
+  transform-origin: 0 0; /* Bod, od kterého se mapa zvětšuje */
+  will-change: transform; /* Optimalizace pro plynulý pohyb */
+}
 .map-image-container img { display: block; width: 100%; height: auto; pointer-events: none; }
 
 .map-pin.solved-temp { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #4caf50; box-shadow: 0 0 20px #4caf50; z-index: 5; animation: ping-fade 1s ease-out forwards; pointer-events: none; }
@@ -709,7 +728,7 @@ const CONFIG = {
       prompt: "Zjistěte totožnost ženy (zadejte příjmení):",
       placeholder: "Příjmení",
       expertName: "Forenzní Expert",
-      expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=EX",
+      expertImg: "https://imgur.com/wA6hFXt.png",
       expertMsg: [
         "Dobrý den, agentko. Pomocí forenzních metod jsme se dopátrali první stopy, všechny nalezené důkazy směřují k této ženě. Zjistěte její totožnost a my se postaráme o zbytek."
       ],
@@ -720,7 +739,7 @@ const CONFIG = {
       photos: [ 
         "Obrazky/1.jpeg",
         "Obrazky/2.jpeg",
-        "Obrazky/6.jpeg",
+        "Obrazky/6.jpg",
         "Obrazky/5.jpeg",
         "Obrazky/4.jpeg",
         "Obrazky/3.jpeg"
@@ -737,7 +756,7 @@ const CONFIG = {
       prompt: "Najděte další vodítko ukryté v digitální stopě fotografií:", 
       placeholder: "Zadejte skrytý kód",
       expertName: "Datový analytik",
-      expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=DA",
+      expertImg: "https://imgur.com/9kHRJFl.png",
       expertMsg: [
         "Díky kódu, který jste získala od informátorky máme nyní přistup k databázi fotografií přímo z místa činu. I přes zapojení nejmodernějších metod umělé inteligence se nám však nepodařilo získat žádná další vodítka...",
         "Agentko, myslím, že se nacházíme ve slepé uličce. Zasílám Vám fotografie, ale z vizuálního hlediska jsme je propátrali do nejmenších detailů... Napadá Vás něco?"
@@ -754,13 +773,13 @@ const CONFIG = {
       label: "Terénní analýza signálu", 
       prompt: "Dostaňte se na určené místo a spusťte analýzu signálu.",
       expertName: "Kryptolog HQ",
-      expertImg: "https://placehold.co/100x100/0e2740/8fc4ee?text=EX",
+      expertImg: "https://imgur.com/EJxYhOy.png",
       expertMsg: [
         "Pomocí kódu, který jste získala z fotografie, se nám podařilo nalézt jej v šifrované komunikaci vyslané odněkud z regionu Ústeckého kraje, musí jít o výškovou budovu schopnou vysílat signál.",
         "Díky analýze signálu jsme vytipovali tři místa odkud mohl signál vzejít. Vysíláme Vás do terénu agentko, dostaňte se na místo a spusťte analýzu, my Vám potvrdíme zda jde o shodu či nikoliv.\n\n1. 50.7930503N, 14.1085081E\n2. 50.6756544N, 14.0037250E\n3. 50.6389983N, 13.8596914E"
       ],
       type: "geolocation", 
-      targetCoords: { lat: 50.7930503, lon: 14.1085081 },
+      targetCoords: { lat: 50.6837236, lon: 13.9928667 },
       tolerance: 200 
     },
     { 
@@ -781,27 +800,26 @@ const CONFIG = {
       codePrompt: "Ověření přístupu do mezinárodní databáze letů. Zadejte zjištěné číslo letu:",
       type: "map_game",
       label: "Analýza trasy pohybu", 
-      prompt: "Klikněte přesně na místo na mapě, kde byl pořízen snímek. Chybný pokus vás bude stát 30 vteřin času.", 
+      prompt: "Identifikujte místo kde byla fotografie pořízena a označte jej na mapě. Každá chyba nás stojí drahocenný čas agentko", 
       commanderMsgOnCode: [
         "Skvělá práce agentko, navzdory původnímu nezdaru jsme přeci o krok blíž k vypátrání pachatele. Díky porovnání biometrických údajů pasažérů s kamerovými záznamy letištního systému se nám podařilo získat fotografii pachatele...",
-        "[IMG]https://placehold.co/400x400/0e2740/8fc4ee?text=Fotografie+Pachatele",
+        "[IMG]https://imgur.com/sXQjAFk.jpeg",
         "Tento muž však necestoval poprvé ani naposled, s předmětem loupeže se následně pohyboval skrz několik dalších zemí... Agentko, jde nám o čas. Musíme přijít na to, kde se nachází v tuto chvíli."
       ],
-      commanderMsg: ["Cesta zmapována. Máme jeho aktuální polohu. Připravte se na finále, agentko."],
+      commanderMsg: ["Cesta zmapována. Díky našemu týmu víme, že ne všechna místa po kterých se pohyboval jsou spojena s uloupeným objektem"],
       mapGame: {
         mapImg: "https://imgur.com/OtKIbQ4.jpg", // Nyní je tu natvrdo tvůj obrázek
-        timeLimit: 15 * 60, // 15 minut
-        // Zde nadefinovány souřadnice bodů (x, y v procentech) a rádius benevolence 'r' v procentech, kdy se hit ještě počítá.
+        timeLimit: 10 * 60, // 15 minut
         photos: [
-           { id: "it", name: "Itálie", src: "https://placehold.co/400x400/111/fff?text=Itálie", x: 50.5, y: 37.0, r: 3 },
-           { id: "hr", name: "Chorvatsko", src: "https://placehold.co/400x400/222/fff?text=Chorvatsko", x: 52.5, y: 36.0, r: 2 },
-           { id: "il", name: "Izrael", src: "https://placehold.co/400x400/333/fff?text=Izrael", x: 56.5, y: 43.0, r: 2.5 },
-           { id: "eg", name: "Egypt", src: "https://placehold.co/400x400/444/fff?text=Egypt", x: 54.5, y: 47.0, r: 4 },
-           { id: "gr", name: "Řecko", src: "https://placehold.co/400x400/555/fff?text=Řecko", x: 53.5, y: 39.0, r: 2 },
-           { id: "pe", name: "Peru", src: "https://placehold.co/400x400/666/fff?text=Peru", x: 27.5, y: 65.0, r: 4 },
-           { id: "pl", name: "Polsko", src: "https://placehold.co/400x400/777/fff?text=Polsko", x: 53.0, y: 30.0, r: 3 },
-           { id: "ge", name: "Gruzie", src: "https://placehold.co/400x400/888/fff?text=Gruzie", x: 60.5, y: 36.0, r: 2 },
-           { id: "id", name: "Indonesie", src: "https://placehold.co/400x400/999/fff?text=Indonesie", x: 80.0, y: 65.0, r: 5 }
+           { id: "it", name: "Itálie", src: "https://imgur.com/I5q0na4.png", x: 50.9, y: 39.2, r: 3 },
+           { id: "hr", name: "Chorvatsko", src: "https://imgur.com/EZt1zYz.png", x: 51.3, y: 39.2, r: 2 },
+           { id: "il", name: "Izrael", src: "https://imgur.com/PNmbhdD.png", x: 56.7, y: 45.5, r: 2.5 },
+           { id: "eg", name: "Egypt", src: "https://imgur.com/DdxrvTL.jpeg", x: 55.5, y: 47.9, r: 4 },
+           { id: "gr", name: "Řecko", src: "https://imgur.com/2n677H3.jpeg", x: 53.3, y: 40.9, r: 2 }, 
+           { id: "pe", name: "Peru", src: "https://imgur.com/AnY2bHp.png", x: 25.8, y: 66.9, r: 4 },
+           { id: "pl", name: "Polsko", src: "https://imgur.com/Sd7XMTz.png", x: 52.5, y: 32.0, r: 3 },
+           { id: "ge", name: "Gruzie", src: "https://imgur.com/EWdGGaa.png", x: 59.1, y: 38.6, r: 2 }, 
+           { id: "id", name: "Indonesie", src: "https://imgur.com/dqrgDTp.png", x: 76.0, y: 64.5, r: 5 } 
         ]
       }
     },
@@ -850,6 +868,8 @@ let currentMapStep = 0;
 let mapTimeRemaining = 0;
 let mapTimerInterval = null;
 
+window.wasMapDragged = false;
+
 /* ============================================================
    GENERATOR DATABÁZE PASAŽÉRŮ
    ============================================================ */
@@ -880,6 +900,7 @@ const pnrNagozenski = "X7B9Q2";
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Jorika Nagozenski", seat: "14C", pnr: pnrNagozenski });
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Lenka Nagozenski", seat: "14B", pnr: pnrNagozenski });
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Michal Nagozenski", seat: "14A", pnr: pnrNagozenski });
+passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Kristýna Malenčuková", seat: randSeat(), pnr: randPNR() });
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { isGlitch: true, name: "", seat: "", pnr: "" });
 
 window.openDatabase = function() {
@@ -1466,11 +1487,17 @@ function renderModal(){
       content.innerHTML = puzzleHTML;
     }
     
-    // Zapojení funkcí
+// Zapojení funkcí
     if (stage.type === "geolocation") {
       document.getElementById("geoAnalyzeBtn").addEventListener("click", startGeoAnalysis);
     } else if (stage.type === "map_game") {
       startMapTimer(stage.mapGame.timeLimit);
+      
+      // -- PŘIDÁNO: Aktivace interaktivní mapy po vykreslení --
+      setTimeout(() => {
+          initMapZoomPan();
+      }, 50);
+
     } else {
       document.getElementById("guessBtn").addEventListener("click", checkGuess);
       document.getElementById("hintBtn").addEventListener("click", showHint);
@@ -1485,9 +1512,157 @@ function renderModal(){
 /* =========================================
    FUNKCE PRO NOVOU MAPOVOU MINIGAME (NEVIDITELNÁ HITBOXY)
    ========================================= */
+   /* --- ENGINE PRO ZOOM A POSUN MAPY --- */
+window.initMapZoomPan = function() {
+    const wrapper = document.querySelector('.map-interactive-wrapper');
+    const container = document.getElementById('interactiveMap');
+    if (!wrapper || !container) return;
+
+    let scale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    
+    // Pro mobilní dotyky
+    let initialPinchDist = null;
+    let lastPinchCenter = null;
+    let rawStartX = 0, rawStartY = 0;
+
+    function updateTransform() {
+        // Omezení přiblížení (1x až 8x)
+        if (scale < 1) scale = 1;
+        if (scale > 8) scale = 8;
+        container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    }
+
+    // --- ZOOM KOLEČKEM (PC) ---
+    wrapper.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const zoomAmount = e.deltaY * -0.002;
+        const newScale = scale * (1 + zoomAmount);
+        
+        const rect = wrapper.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+
+        if (newScale >= 1 && newScale <= 8) {
+            const ratio = newScale / scale;
+            panX = offsetX - (offsetX - panX) * ratio;
+            panY = offsetY - (offsetY - panY) * ratio;
+            scale = newScale;
+            updateTransform();
+        }
+    }, { passive: false });
+
+    // --- TAŽENÍ MYŠÍ (PC) ---
+    wrapper.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        window.wasMapDragged = false;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        rawStartX = e.clientX;
+        rawStartY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        // Pokud myš ujede více než 5 pixelů, bereme to jako tažení, ne jako klik
+        if (Math.abs(e.clientX - rawStartX) > 5 || Math.abs(e.clientY - rawStartY) > 5) {
+            window.wasMapDragged = true;
+        }
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    // --- DOTYKY A PINCH-TO-ZOOM (MOBIL) ---
+    wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            window.wasMapDragged = false;
+            startX = e.touches[0].clientX - panX;
+            startY = e.touches[0].clientY - panY;
+            rawStartX = e.touches[0].clientX;
+            rawStartY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            isDragging = false;
+            window.wasMapDragged = true; // Dotyk 2 prsty je vždy manipulace, ne hádání lokace
+            initialPinchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            lastPinchCenter = {
+                x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+            };
+        }
+    }, { passive: false });
+
+    wrapper.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // Zabrání scrollování stránky
+        if (e.touches.length === 1 && isDragging) {
+            if (Math.abs(e.touches[0].clientX - rawStartX) > 5 || Math.abs(e.touches[0].clientY - rawStartY) > 5) {
+                window.wasMapDragged = true;
+            }
+            panX = e.touches[0].clientX - startX;
+            panY = e.touches[0].clientY - startY;
+            updateTransform();
+        } else if (e.touches.length === 2) {
+            const currentDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const currentCenter = {
+                x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+            };
+
+            if (initialPinchDist) {
+                const ratio = currentDist / initialPinchDist;
+                const newScale = scale * ratio;
+
+                if (newScale >= 1 && newScale <= 8) {
+                    const rect = wrapper.getBoundingClientRect();
+                    const offsetX = lastPinchCenter.x - rect.left;
+                    const offsetY = lastPinchCenter.y - rect.top;
+
+                    panX = offsetX - (offsetX - panX) * ratio;
+                    panY = offsetY - (offsetY - panY) * ratio;
+                    
+                    panX += currentCenter.x - lastPinchCenter.x;
+                    panY += currentCenter.y - lastPinchCenter.y;
+
+                    scale = newScale;
+                    updateTransform();
+                }
+                initialPinchDist = currentDist;
+                lastPinchCenter = currentCenter;
+            }
+        }
+    }, { passive: false });
+
+    wrapper.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+            initialPinchDist = null;
+        }
+        if (e.touches.length === 1) {
+            startX = e.touches[0].clientX - panX;
+            startY = e.touches[0].clientY - panY;
+            isDragging = true;
+        } else {
+            isDragging = false;
+        }
+    });
+};
 
 window.handleMapClick = function(e) {
     if (!mapTimerInterval) return; // Není aktivní hra
+	if (window.wasMapDragged) return;
     const stage = CONFIG.stages[modal.stageIndex];
     if (currentMapStep >= stage.mapGame.photos.length) return; // Vše hotovo
 
