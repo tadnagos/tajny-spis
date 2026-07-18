@@ -425,12 +425,12 @@ body::after{
 .modal-split { display: flex; gap: 24px; align-items: flex-start; }
 .modal-split-half { flex: 1; display: flex; flex-direction: column; width: 100%; }
 
-/* EXPERT CHAT */
+/* EXPERT CHAT - UPRAVENO */
 .expert-chat-box { background: rgba(4, 10, 19, 0.4); border-left: 3px solid var(--blue-light); padding: 16px; border-radius: 6px; display: flex; flex-direction: column; width: 100%; }
-.expert-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.expert-header img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(143, 196, 238, 0.4); cursor: pointer; flex-shrink: 0; transition: all 0.2s ease; }
+.expert-header { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+.expert-header img { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(143, 196, 238, 0.4); cursor: pointer; flex-shrink: 0; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 .expert-header img:hover { transform: scale(1.05); border-color: var(--blue-light); }
-.expert-name { font-family: 'Share Tech Mono', monospace; font-size: 15px; color: var(--gold); text-transform: uppercase; }
+.expert-name { font-family: 'Share Tech Mono', monospace; font-size: 18px; color: var(--gold); text-transform: uppercase; line-height: 1.2; }
 .expert-msg-bubble { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--blue-pale); line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
 .expert-msg-bubble.typing::after { content: '█'; animation: blink 1s step-end infinite; color: var(--blue-light); margin-left: 4px; }
 .expert-evidence { width: 100%; border-radius: 6px; border: 1px solid rgba(143,196,238,.3); display: none; animation: fadein 0.6s ease; margin-top: 10px; }
@@ -600,6 +600,11 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
   .agent-wrap { padding: 30px 16px; }
   .villain-header img { width: 80px; height: 80px; }
   .overlay-grid { grid-template-columns: repeat(3, 1fr); }
+  
+  /* NOVÉ: Zmenšení fotek expertů pro mobily, aby se vešel text */
+  .expert-header img { width: 84px; height: 84px; }
+  .expert-header { gap: 14px; margin-bottom: 12px; }
+  .expert-name { font-size: 16px; }
 }
 </style>
 </head>
@@ -800,7 +805,7 @@ const CONFIG = {
       codePrompt: "Ověření přístupu do mezinárodní databáze letů. Zadejte zjištěné číslo letu:",
       type: "map_game",
       label: "Analýza trasy pohybu", 
-      prompt: "Identifikujte místo, kde byla fotografie pořízena a označte jej na mapě. Každá chyba nás stojí drahocenný čas agentko", 
+      prompt: "Identifikujte místo kde byla fotografie pořízena a označte jej na mapě. Každá chyba nás stojí drahocenný čas agentko", 
       commanderMsgOnCode: [
         "Skvělá práce agentko, navzdory původnímu nezdaru jsme přeci o krok blíž k vypátrání pachatele. Díky porovnání biometrických údajů pasažérů s kamerovými záznamy letištního systému se nám podařilo získat fotografii pachatele...",
         "[IMG]https://imgur.com/sXQjAFk.jpeg",
@@ -998,7 +1003,7 @@ document.getElementById("sixNumber").addEventListener("click", ()=>{
   setTimeout(()=>{
     intro.classList.add("hidden");
     agentScreen.classList.add("enter");
-    document.getElementById("agentInput").focus();
+    if(window.innerWidth > 800) document.getElementById("agentInput").focus();
   }, 700);
 });
 
@@ -1286,7 +1291,9 @@ function renderModal(){
     document.getElementById("unlockBtn").addEventListener("click", () => checkCode(idx));
     const inp = document.getElementById("codeInput");
     inp.addEventListener("keydown", e => { if(e.key==="Enter") checkCode(idx); });
-    inp.focus();
+    
+    // Autofocus pouze na PC
+    if(window.innerWidth > 800) inp.focus();
     return;
   }
 
@@ -1503,7 +1510,9 @@ function renderModal(){
       document.getElementById("hintBtn").addEventListener("click", showHint);
       const inp = document.getElementById("guessInput");
       inp.addEventListener("keydown", e => { if(e.key==="Enter") checkGuess(); });
-      inp.focus();
+      
+      // Autofocus pouze na PC
+      if(window.innerWidth > 800) inp.focus();
     }
     return;
   }
