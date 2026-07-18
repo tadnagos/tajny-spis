@@ -6,7 +6,7 @@
 <title>Agent 006 - Vyšetřovací spis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg-deep:#040a13;
@@ -23,7 +23,7 @@
 html,body{margin:0;padding:0;min-height:100vh;min-height:100dvh;}
 body{
   background: radial-gradient(ellipse at 50% 40%, var(--bg-mid) 0%, var(--bg-deep) 65%, #000 115%);
-  font-family:'Manrope', sans-serif;
+  font-family:'Inter', sans-serif;
   color:var(--ink);
   overflow-x:hidden;
 }
@@ -95,7 +95,7 @@ body::after{
 }
 .six-wrap.show{opacity:1;transform:translateY(0) scale(1);}
 .six-number{
-  font-family:'Manrope', sans-serif;
+  font-family:'Inter', sans-serif;
   font-weight:800;
   font-size:clamp(120px, 26vw, 320px);
   line-height:.9;
@@ -490,14 +490,14 @@ body::after{
 .lightbox-close:hover { color: var(--blue-light); }
 
 .step-label{ font-family: 'Share Tech Mono', monospace; font-size:12px;letter-spacing:.16em;text-transform:uppercase; color:var(--blue-light);opacity:.75;margin-bottom:6px; }
-.prompt{ font-family:'Manrope', sans-serif; font-size:17px;margin:0 0 14px;line-height:1.4; color:var(--blue-pale); }
+.prompt{ font-family:'Inter', sans-serif; font-size:17px;margin:0 0 14px;line-height:1.4; color:var(--blue-pale); }
 
 /* INPUTS & BTNS */
-input[type=text]{ width:100%;padding:12px 14px; border:1.5px solid rgba(143,196,238,.3); border-radius:4px; font-family:'Manrope', sans-serif; font-size:16px; background:rgba(4,10,19,.5); color:var(--ink); margin-bottom:12px; -webkit-appearance: none; }
+input[type=text]{ width:100%;padding:12px 14px; border:1.5px solid rgba(143,196,238,.3); border-radius:4px; font-family:'Inter', sans-serif; font-size:16px; background:rgba(4,10,19,.5); color:var(--ink); margin-bottom:12px; -webkit-appearance: none; }
 input[type=text]::placeholder{color:var(--muted);}
 input[type=text]:focus{outline:none;border-color:var(--blue-light);}
 
-button{ font-family:'Manrope', sans-serif; font-size:16px;letter-spacing:.03em; background:var(--blue); color:#04101c; border:none;padding:12px 22px;border-radius:4px; cursor:pointer;width:100%;font-weight:700; transition:background .2s ease, transform .1s ease; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+button{ font-family:'Inter', sans-serif; font-size:16px;letter-spacing:.03em; background:var(--blue); color:#04101c; border:none;padding:12px 22px;border-radius:4px; cursor:pointer;width:100%;font-weight:700; transition:background .2s ease, transform .1s ease; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
 button:hover{background:var(--blue-light);}
 button:active{transform:scale(.98);}
 button.ghost{ background:transparent;color:var(--blue-light); border:1.5px solid rgba(143,196,238,.4); margin-top: 8px; }
@@ -513,7 +513,7 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
 .message{font-size:15px;margin-top:10px;min-height:20px; font-weight: 500;}
 .message.err{color:#e59a9a;}
 .reveal-box{text-align:center;animation:fadein .5s ease;}
-.reveal-box .place{ font-family:'Manrope', sans-serif; font-size:20px;color:var(--blue-pale); margin:12px 0 18px;line-height:1.35; }
+.reveal-box .place{ font-family:'Inter', sans-serif; font-size:20px;color:var(--blue-pale); margin:12px 0 18px;line-height:1.35; }
 @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .shake{animation:shake .4s;}
 @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
@@ -521,7 +521,7 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
 
 /* ---------- FINALE ---------- */
 .finale-wrap{text-align:center;width:100%;max-width:460px; z-index: 10; position: relative;}
-.finale-wrap h2{ font-family:'Manrope', sans-serif; font-size:28px;color:var(--blue-pale);margin:0 0 16px; }
+.finale-wrap h2{ font-family:'Inter', sans-serif; font-size:28px;color:var(--blue-pale);margin:0 0 16px; }
 .finale-wrap p{font-size:17px;line-height:1.6;color:var(--ink);}
 .hearts{font-size:26px;letter-spacing:8px;color:var(--gold);margin-bottom:16px;}
 .finale-img{ width:100%; max-width:320px; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
@@ -723,7 +723,7 @@ const CONFIG = {
   stages: [
     { 
       photo:"https://imgur.com/byfCDcU.jpg", 
-      answers:["nejedla"], 
+      answers:["ucitelka"], 
       hint:"Mělo by jít o jistou pedagožku, která byla s naším subjektem v kontaktu již v jeho začátcích.", 
       commanderMsg: [
         "Výborně agentko, podařilo se nám odhalit z jaké fotografie pochází výstřižek. O identitě pachatele nám sice moc neříká ale...",
@@ -750,8 +750,8 @@ const CONFIG = {
         "Obrazky/3.jpeg"
       ],
       type: "photo_grid",
-      answers: ["20141519"], 
-      hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se zda tam napsáno něco navíc?", 
+      answers: ["20-1-4-5-1-19"], 
+      hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se zda tam není napsáno něco navíc?", 
       code: "OSLAVA2020", 
       commanderMsg: [
         "Skvělá práce, myslí Vám to... Zřejmě bude na místě přehodnocení výše mezd našich datových expertů.",
@@ -768,7 +768,7 @@ const CONFIG = {
       ]
     },
     { 
-      photo: "https://imgur.com/N5HHbJ4.jpg",
+      photo: "https://imgur.com/J03Xzxs.jpg",
       answers: [],
       code: "",
       commanderMsg: [
