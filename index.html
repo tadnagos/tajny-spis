@@ -517,10 +517,72 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
 .modal-close{ position:absolute;top:-14px;right:-14px; width:34px;height:34px;border-radius:50%; background:var(--bg-panel); border:1px solid rgba(143,196,238,.25); color:var(--blue-pale); display:flex;align-items:center;justify-content:center; cursor:pointer;font-size:18px; z-index: 10; }
 
 /* ---------- FINALE ---------- */
-.finale-wrap{text-align:center;width:100%;max-width:460px; z-index: 10; position: relative;}
-.finale-wrap h2{ font-family:'Inter', sans-serif; font-size:28px;color:var(--blue-pale);margin:0 0 16px; }
-.finale-wrap p{font-size:17px;line-height:1.6;color:var(--ink);}
-.finale-img{ width:100%; max-width:320px; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+#finaleScreen {
+  padding: 0; /* Vyresetujeme odsazení pro full-screen efekt */
+}
+.finale-wrap {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: none; /* Odstraníme omezení šířky */
+  height: 100vh;
+  height: 100dvh;
+  z-index: 10;
+  position: relative;
+  text-align: left;
+}
+.finale-left {
+  flex: 1; /* Zabere polovinu obrazovky */
+  height: 100%;
+}
+.finale-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Roztáhne obrázek na celou plochu levé části bez deformace */
+  border-radius: 0;
+  margin: 0;
+  box-shadow: none;
+}
+.finale-right {
+  flex: 1; /* Zabere druhou polovinu */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px;
+  background: var(--bg-deep);
+  border-left: 2px solid var(--blue);
+}
+.finale-right h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  color: var(--blue-pale);
+  margin: 0 0 24px;
+}
+.finale-right p {
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* RESPONSIVE FINALE - MOBILY */
+@media (max-width: 800px) {
+  .finale-wrap {
+    flex-direction: column;
+  }
+  .finale-left {
+    flex: none;
+    height: 50vh; /* Na mobilu zabere fotka horní půlku */
+  }
+  .finale-right {
+    flex: none;
+    height: 50vh;
+    padding: 30px;
+    border-left: none;
+    border-top: 2px solid var(--blue);
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+}
 
 /* ---------- HACKING MINIGAME ---------- */
 .hack-container { width: 100%; padding: 20px; background: rgba(0,0,0,0.6); border: 1px solid rgba(143, 196, 238, 0.3); border-radius: 8px; text-align: center; position: relative; }
@@ -671,9 +733,16 @@ body.glitch-3 * { text-shadow: 4px 0 rgba(255,0,0,1), -4px 0 rgba(0,255,255,1); 
 <!-- FINÁLE -->
 <div id="finaleScreen" class="screen hidden">
   <div id="finaleReveal" class="finale-wrap hidden">
-    <img id="finalePhoto" class="finale-img" src="">
-    <h2 id="finaleTitle"></h2>
-    <p id="finaleText"></p>
+    <div class="finale-left">
+      <img id="finalePhoto" class="finale-img" src="">
+    </div>
+    <div class="finale-right">
+      <h2 id="finaleTitle"></h2>
+      <p id="finaleText"></p>
+      
+      <!-- Tlačítko pro reset hry a smazání uloženého postupu -->
+      <button onclick="resetGame()" class="ghost" style="margin-top: 40px; max-width: 250px;">Smazat postup a hrát znovu</button>
+    </div>
   </div>
 </div>
 
@@ -741,7 +810,7 @@ const CONFIG = {
   
   stages: [
     { 
-      photo:"https://imgur.com/byfCDcU.jpg", 
+      photo:"trida.jpg", 
       answers:["ucitelka"], 
       hint:"Mělo by jít o jistou pedagožku, která byla s naším subjektem v kontaktu již v jeho začátcích.", 
       commanderMsg: [
@@ -756,7 +825,7 @@ const CONFIG = {
       expertMsg: [
         "Dobrý den, agentko. Pomocí forenzních metod jsme se dopátrali první stopy, všechny nalezené důkazy směřují k této ženě. Zjistěte její totožnost a my se postaráme o zbytek."
       ],
-      expertEvidencePhoto: "https://imgur.com/5XzwQAF.jpg"
+      expertEvidencePhoto: "ucitelka.jpg"
     },
     { 
       photo: "https://imgur.com/DaHBLW3.jpg", 
@@ -835,7 +904,7 @@ const CONFIG = {
           "[ADRESA_BTN]" 
       ],
       mapGame: {
-        mapImg: "https://imgur.com/OtKIbQ4.jpg",
+        mapImg: "mapa.png",
         timeLimit: 10 * 60,
         photos: [
            { id: "it", name: "Itálie", src: "https://imgur.com/I5q0na4.png", x: 50.9, y: 39.2, r: 3 },
@@ -852,7 +921,7 @@ const CONFIG = {
     },
     { 
       type: "dual_chat", 
-      photo: "https://placehold.co/600x600/0c2036/8fc4ee?text=Tvoje+Fotka", // ZDE DEJ SVOU FOTKU!
+      photo: "tada.jpeg", // ZDE DEJ SVOU FOTKU!
       answers: ["tadeas", "tadeáš"], // Nastavené jméno (funguje s diakritikou i bez)
       label: "Konečné zúčtování",
       expertName: "Velitel HQ",
@@ -873,12 +942,12 @@ const CONFIG = {
   ],
   endings: {
       commander: {
-          photo: "https://placehold.co/800x800/0c2036/8fc4ee?text=Nase+Spolecna+Fotka", // Klasické zakončení
+          photo: "https://imgur.com/DYCcYpK.png", // Klasické zakončení
           title: "Mise úspěšná: Subjekt identifikován.",
           text: "Šest let vyšetřování končí a pachatel bude předán spravedlnosti. Zůstala jsi na straně zákona. Připrav se na debriefing."
       },
       villain: {
-          photo: "https://placehold.co/800x800/2a0845/d896ff?text=Dark+Fotka", // Temnější/romantičtější zakončení
+          photo: "https://imgur.com/xnyEM7a.png", // Temnější/romantičtější zakončení
           title: "Systém narušen: Agentka přeběhla.",
           text: "Zvolila jsi temnou stranu... ale s ním. Šest let vyšetřování končí zběhnutím ze služby. Připrav se na únik."
       }
@@ -1033,7 +1102,6 @@ function preloadImagesAndStart() {
     img.src = src;
   });
 }
-preloadImagesAndStart();
 
 document.getElementById("sixNumber").addEventListener("click", ()=>{
   const sixWrap = document.getElementById("sixWrap");
@@ -1066,6 +1134,7 @@ function verifyAgent() {
       requestAnimationFrame(()=> requestAnimationFrame(()=> {
         grid.classList.add("enter");
         startCommanderTransmission(COMMANDER_INTRO);
+        saveProgress();
       }));
     }, 500);
   } else {
@@ -1932,6 +2001,7 @@ function checkCode(idx){
     tileStates[idx] = "guessing";
     modal.state = "guessing";
     renderGrid(); 
+    saveProgress(); 
     
     if (stage.commanderMsgOnCode) {
         closeModal();
@@ -2081,6 +2151,7 @@ function markStageAsSolved(idx) {
          startCommanderTransmission(stage.commanderMsg, stage.hasDatabaseBtn);
       }
   }
+  saveProgress();
 }
 
 function checkGuess(){
@@ -2184,6 +2255,65 @@ function renderFinale(){
     document.getElementById("finaleText").textContent = endingData.text;
     document.getElementById("finalePhoto").src = endingData.photo;
   }
+}
+
+/* ============================================================
+   SAVE/LOAD SYSTÉM (LocalStorage)
+   ============================================================ */
+const SAVE_KEY = "agent006_save";
+
+function saveProgress() {
+  const gameState = {
+    tileStates: tileStates,
+    finaleReached: finaleReached,
+    finaleUnlocked: finaleUnlocked,
+    selectedEnding: selectedEnding,
+    isAuthenticated: document.getElementById("gridScreen").classList.contains("enter") || finaleReached
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+}
+
+function loadProgress() {
+  const savedData = localStorage.getItem(SAVE_KEY);
+  if (savedData) {
+    try {
+      const gameState = JSON.parse(savedData);
+      tileStates = gameState.tileStates;
+      finaleReached = gameState.finaleReached;
+      finaleUnlocked = gameState.finaleUnlocked;
+      selectedEnding = gameState.selectedEnding;
+      return gameState.isAuthenticated;
+    } catch (e) {
+      console.error("Chyba při načítání pozice", e);
+    }
+  }
+  return false;
+}
+
+function resetGame() {
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
+
+if (loadProgress()) {
+  // Pokud existuje uložená hra, přeskočíme intro
+  document.getElementById("introScreen").classList.add("hidden");
+  document.getElementById("agentScreen").classList.add("hidden");
+
+  if (finaleReached) {
+    // Načtení rovnou do finále
+    document.getElementById("finaleScreen").classList.remove("hidden");
+    renderFinale();
+  } else {
+    // Načtení do rozehraného gridu
+    document.getElementById("gridScreen").classList.remove("hidden");
+    document.getElementById("gridScreen").classList.add("enter");
+    renderGrid();
+    startCommanderTransmission(["Vítejte zpět, agentko. Údaje obnoveny z paměti terminálu. Pokračujte ve vyšetřování."]);
+  }
+} else {
+  // Pokud neexistuje save, spustíme intro animaci
+  preloadImagesAndStart();
 }
 </script>
 </body>
