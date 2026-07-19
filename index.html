@@ -1,2293 +1,4717 @@
 <!DOCTYPE html>
+
 <html lang="cs">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Agent 006 - Vyšetřovací spis</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
 <style>
+
 :root{
+
   --bg-deep:#040a13;
+
   --bg-mid:#0c2036;
+
   --bg-panel:#0e2740;
+
   --blue:#3f7fc0;
+
   --blue-light:#8fc4ee;
+
   --blue-pale:#cfe6fa;
+
   --ink:#dce8f4;
+
   --muted:#7189a0;
+
   --gold:#d9b46a;
+
 }
+
 *{box-sizing:border-box;}
+
 html,body{margin:0;padding:0;min-height:100vh;min-height:100dvh;}
+
 body{
+
   background: radial-gradient(ellipse at 50% 40%, var(--bg-mid) 0%, var(--bg-deep) 65%, #000 115%);
+
   font-family:'Inter', sans-serif;
+
   color:var(--ink);
+
   overflow-x:hidden;
+
 }
+
 body::after{
+
   content:"";
+
   position:fixed;inset:0;
+
   pointer-events:none;
+
   z-index:5;
+
   background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.75) 100%);
+
 }
+
 .screen{
+
   min-height:100vh;
+
   min-height:100dvh;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
+
   flex-direction:column;
+
   position:relative;
+
   padding:24px 16px;
+
 }
+
 .hidden{display:none !important;}
 
+
+
 /* ---------- INTRO / MONTAGE ---------- */
+
 #introScreen{
+
   cursor:default;
+
   position:relative;
+
   min-height:100vh;
+
   min-height:100dvh;
+
   padding:0;
+
   overflow:hidden;
+
   opacity:1;
+
   filter:blur(0px);
+
   transition:opacity .65s ease, filter .65s ease;
+
 }
+
 #introScreen.leaving{
+
   opacity:0;
+
   filter:blur(10px);
+
   pointer-events:none;
+
 }
+
 .montage-stage{
+
   position:fixed;
+
   inset:0;
+
   z-index:1;
+
 }
+
 .montage-stage img{
+
   position:absolute;inset:0;
+
   width:100%;height:100%;object-fit:cover;
+
   opacity:0;
+
   filter:brightness(.6) saturate(.9);
+
   transition:opacity .18s ease;
+
 }
+
 .montage-stage img.flash{opacity:1;}
+
 .montage-stage::after{
+
   content:"";
+
   position:absolute;inset:0;
+
   background:linear-gradient(to bottom, rgba(2,7,14,.35) 0%, rgba(2,7,14,.15) 40%, rgba(2,7,14,.55) 100%);
+
   transition:background .8s ease;
+
 }
+
 .montage-stage.settled::after{
+
   background:linear-gradient(to bottom, rgba(2,7,14,.55) 0%, rgba(2,7,14,.4) 40%, rgba(2,7,14,.7) 100%);
+
 }
+
 .six-wrap{
+
   position:relative;
+
   z-index:3;
+
   text-align:center;
+
   opacity:0;
+
   transform:translateY(14px) scale(.94);
+
   transition:opacity 1.1s ease, transform 1.1s ease;
+
 }
+
 .six-wrap.show{opacity:1;transform:translateY(0) scale(1);}
+
 .six-number{
+
   font-family:'Inter', sans-serif;
+
   font-weight:800;
+
   font-size:clamp(120px, 26vw, 320px);
+
   line-height:.9;
+
   color:#ffffff;
+
   text-shadow:0 8px 50px rgba(0,0,0,.55);
+
   cursor:pointer;
+
   user-select:none;
+
   letter-spacing:-.02em;
+
 }
+
 .six-caption{
+
   font-size:15px;
+
   font-weight:600;
+
   letter-spacing:.28em;
+
   text-transform:uppercase;
+
   color:rgba(255,255,255,.75);
+
   margin-top:6px;
+
   text-shadow:0 2px 16px rgba(0,0,0,.5);
+
 }
+
 .six-hint{
+
   font-size:15px;
+
   font-weight:500;
+
   color:var(--blue-light);
+
   margin-top:20px;
+
   opacity:0;
+
   animation:pulse 2.4s ease-in-out infinite;
+
   animation-delay:1.4s;
+
   letter-spacing:.04em;
+
 }
+
 .six-wrap.show .six-hint{opacity:.9;}
+
 @keyframes pulse{0%,100%{opacity:.55;}50%{opacity:1;}}
 
+
+
 /* ---------- AGENT VERIFICATION SCREEN ---------- */
+
 #agentScreen {
+
   opacity: 0;
+
   transform: translateY(20px);
+
   transition: opacity .8s ease, transform .8s ease;
+
   z-index: 10;
+
 }
+
 #agentScreen.enter {
+
   opacity: 1;
+
   transform: translateY(0);
+
 }
+
 .agent-wrap {
+
   text-align: center;
+
   width: 100%;
+
   max-width: 420px;
+
   background: rgba(14,39,64,0.6);
+
   border: 1px solid rgba(143,196,238,.2);
+
   border-radius: 12px;
+
   padding: 40px 24px;
+
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+
   backdrop-filter: blur(10px);
+
 }
+
 .agent-title {
+
   font-family: 'Share Tech Mono', monospace;
+
   font-size: 24px;
+
   color: var(--blue-light);
+
   margin: 0 0 16px;
+
   text-transform: uppercase;
+
   letter-spacing: 0.1em;
+
 }
+
 .agent-wrap p {
+
   font-size: 15px;
+
   color: var(--muted);
+
   line-height: 1.6;
+
   margin-bottom: 24px;
+
 }
+
 #agentInput {
+
   font-family: 'Share Tech Mono', monospace;
+
   font-size: 20px;
+
   letter-spacing: 0.3em;
+
   text-align: center;
+
 }
+
+
 
 /* ---------- LAYOUT S PANELEM VELITELE ---------- */
+
 #gridScreen {
+
   padding-top:40px;
+
   padding-bottom:40px;
+
   opacity:0;
+
   transform:translateY(18px);
+
   transition:opacity .7s ease, transform .7s ease;
+
   z-index: 10;
+
   width: 100%;
+
 }
+
 #gridScreen.enter {
+
   opacity: 1;
+
   transform: translateY(0);
+
 }
+
 .layout-container {
+
   display: flex;
+
   gap: 40px;
+
   width: 100%;
+
   max-width: 1100px;
+
   align-items: flex-start;
+
   justify-content: center;
+
 }
+
 .sidebar {
+
   flex: 0 0 300px;
+
   background: rgba(14, 39, 64, 0.5);
+
   border: 1px solid rgba(143, 196, 238, 0.2);
+
   border-radius: 10px;
+
   padding: 20px;
+
   display: flex;
+
   flex-direction: column;
+
   gap: 16px;
+
   box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+
   transition: all 0.3s;
+
 }
+
 .commander-photo-wrap {
+
   flex-shrink: 0;
+
 }
+
 .commander-photo {
+
   width: 100%;
+
   aspect-ratio: 1/1;
+
   border-radius: 6px;
+
   object-fit: cover;
+
   border: 1.5px solid rgba(143, 196, 238, 0.4);
+
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+
   cursor: pointer;
+
   transition: all 0.2s ease;
+
 }
+
 .commander-photo:hover {
+
   transform: scale(1.03);
+
   border-color: var(--blue-light);
+
 }
+
 .messages-container {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 12px;
+
   min-height: 200px;
+
 }
+
 .commander-msg {
+
   font-family: 'Share Tech Mono', monospace;
+
   font-size: 14px;
+
   color: var(--blue-pale);
+
   line-height: 1.5;
+
   background: rgba(4, 10, 19, 0.6);
+
   padding: 12px;
+
   border-left: 3px solid var(--blue-light);
+
   border-radius: 0 4px 4px 0;
+
 }
+
 .commander-msg.typing::after {
+
   content: '█';
+
   animation: blink 1s step-end infinite;
+
   margin-left: 4px;
+
   color: var(--blue-light);
+
 }
+
 @keyframes blink { 50% { opacity: 0; } }
 
+
+
 .main-content {
+
   flex: 1;
+
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   width: 100%;
+
 }
+
+
 
 /* ---------- GRID / FOLDERS ---------- */
+
 .grid-title{
+
   font-family:'Share Tech Mono', monospace;
+
   font-size:24px;
+
   text-align:center;
+
   color:var(--blue-pale);
+
   margin-bottom:6px;
+
   letter-spacing: 0.05em;
+
   text-transform: uppercase;
+
 }
+
 .grid-sub{
+
   text-align:center;
+
   color:var(--muted);
+
   font-size:15px;
+
   font-weight:500;
+
   margin-bottom:35px;
+
   padding: 0 10px;
+
 }
+
 .grid{
+
   display:grid;
+
   grid-template-columns:repeat(3, minmax(0,1fr));
+
   gap:24px 20px;
+
   width:100%;
+
 }
+
+
 
 .tile {
+
   position: relative;
+
   display: flex;
+
   flex-direction: column;
+
   transform: scale(1);
+
   transition: transform .3s cubic-bezier(.2,.8,.3,1);
+
 }
+
 .folder-tab {
+
   width: 75%;
+
   height: 24px;
+
   background: var(--bg-panel);
+
   border: 1.5px solid rgba(143,196,238,.2);
+
   border-bottom: none;
+
   border-radius: 6px 8px 0 0;
+
   display: flex;
+
   align-items: center;
+
   padding: 0 8px;
+
   margin-bottom: -1.5px;
+
   position: relative;
+
   z-index: 2;
+
 }
+
 .tab-text {
+
   font-family: 'Share Tech Mono', monospace;
+
   font-size: 11px;
+
   color: var(--blue-light);
+
   letter-spacing: 0.05em;
+
   white-space: nowrap;
+
   overflow: hidden;
+
   text-overflow: ellipsis;
+
 }
+
 .folder-body {
+
   position: relative;
+
   aspect-ratio: 1/1;
+
   background: #000;
+
   border: 1.5px solid rgba(143,196,238,.2);
+
   border-radius: 0 8px 8px 8px;
+
   overflow: hidden;
+
   z-index: 1;
+
   box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+
   transition: box-shadow .35s ease;
+
 }
+
+
 
 .folder-body img {
+
   width:100%;height:100%;object-fit:cover;
+
   display:block;
+
   filter:grayscale(.5) brightness(.28) blur(15px);
+
   transform: scale(1.2);
+
   transition:filter .35s ease, transform .35s ease;
+
 }
+
+
 
 /* Stavy složek */
+
 .tile.locked {cursor:default;}
+
 .tile.locked .folder-body::before{
+
   content:"";
+
   position:absolute;inset:0;
+
   background:rgba(0,0,0,.45);
+
   z-index: 2;
+
 }
+
 .lockicon{
+
   position:absolute;top:50%;left:50%;
+
   transform:translate(-50%,-50%);
+
   width:24px;height:24px;
+
   opacity:.6;
+
   z-index:3;
+
 }
+
 .tile.needs_code {cursor:pointer;}
+
 .tile.needs_code .folder-body::before {
+
   content: "";
+
   position: absolute; inset: 0;
+
   background: rgba(0,0,0,.55);
+
   z-index: 2;
+
 }
+
 .needscode-text {
+
   position: absolute; top: 68%; left: 50%;
+
   transform: translate(-50%, -50%);
+
   color: var(--blue-pale);
+
   font-family: 'Share Tech Mono', monospace;
+
   font-size: 11px; 
+
   letter-spacing: 0.05em;
+
   z-index: 3;
+
   width: 100%; text-align: center;
+
   text-transform: uppercase;
+
 }
+
 .tile.needs_code:hover { transform:scale(1.02); }
 
+
+
 /* Časový zámek */
+
 .tile.time_locked {cursor:pointer;}
+
 .tile.time_locked .folder-body::before {
+
   content: "";
+
   position: absolute; inset: 0;
+
   background: rgba(0,0,0,.45);
+
   z-index: 2;
+
 }
+
 .tile.time_locked:hover { transform:scale(1.02); }
 
+
+
 .tile.guessing .folder-body img {filter:grayscale(.2) brightness(.42) blur(15px);}
+
 .tile.guessing {cursor:pointer;}
+
 .tile.guessing:hover {transform:scale(1.045);}
+
 .tile.guessing:hover .folder-body {box-shadow:0 12px 30px rgba(63,127,192,.35);}
+
 .tile.guessing:hover .folder-body img {filter:grayscale(0) brightness(.58) blur(12px);}
+
 .tile.solved {cursor:pointer;}
+
 .tile.solved .folder-body img {filter:grayscale(0) brightness(.8) blur(0); transform: scale(1);}
+
 .tile.solved .folder-body::before {
+
   content:"";
+
   position:absolute;inset:0;
+
   background:linear-gradient(to top, rgba(4,10,19,.55), transparent 45%);
+
   z-index: 2;
+
 }
+
 .tile.solved:hover {transform:scale(1.02);}
 
+
+
 /* ---------- MODAL ---------- */
+
 #modalBackdrop{
+
   position:fixed;inset:0;
+
   background:rgba(2,7,14,0);
+
   z-index:20;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
+
   padding:16px;
+
   pointer-events:none;
+
   transition:background .35s ease;
+
   overflow-y:auto;
+
 }
+
 #modalBackdrop.open{background:rgba(2,7,14,.85);pointer-events:auto;}
 
+
+
 .modal-card{
+
   width:100%;
+
   max-width:420px;
+
   background:var(--bg-panel);
+
   border:1px solid rgba(143,196,238,.15);
+
   border-radius:10px;
+
   padding:24px;
+
   box-shadow:0 30px 80px rgba(0,0,0,.8);
+
   transform:scale(.15);
+
   transform-origin:var(--ox,50%) var(--oy,50%);
+
   opacity:0;
+
   transition:transform .45s cubic-bezier(.2,.8,.25,1), opacity .3s ease, width .35s ease;
+
   display: flex;
+
   flex-direction: column;
+
   margin: auto;
+
   position: relative;
+
 }
+
 #modalBackdrop.open .modal-card{transform:scale(1);opacity:1;}
+
 .modal-card.modal-wide { max-width: 950px; }
+
 .modal-card.modal-map { max-width: 95vw; width: 100%; height: 90vh; max-height: none; }
+
 .modal-card.modal-map #modalContent { height: 100%; display: flex; flex-direction: column; }
 
+
+
 .modal-split { display: flex; gap: 24px; align-items: flex-start; }
+
 .modal-split-half { flex: 1; display: flex; flex-direction: column; width: 100%; }
 
+
+
 /* EXPERT CHAT */
+
 .expert-chat-box { background: rgba(4, 10, 19, 0.4); border-left: 3px solid var(--blue-light); padding: 16px; border-radius: 6px; display: flex; flex-direction: column; width: 100%; }
+
 .expert-header { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+
 .expert-header img { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(143, 196, 238, 0.4); cursor: pointer; flex-shrink: 0; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+
 .expert-header img:hover { transform: scale(1.05); border-color: var(--blue-light); }
+
 .expert-name { font-family: 'Share Tech Mono', monospace; font-size: 18px; color: var(--gold); text-transform: uppercase; line-height: 1.2; }
+
 .expert-msg-bubble { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--blue-pale); line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; }
+
 .expert-msg-bubble.typing::after { content: '█'; animation: blink 1s step-end infinite; color: var(--blue-light); margin-left: 4px; }
+
 .expert-evidence { width: 100%; border-radius: 6px; border: 1px solid rgba(143,196,238,.3); display: none; animation: fadein 0.6s ease; margin-top: 10px; }
 
+
+
 /* FOTKY V MODALU */
+
 .modal-photo{ position:relative; width:100%; aspect-ratio:1/1; border-radius:6px; overflow:hidden; margin-bottom:18px; background:#000; }
+
 .modal-photo img{ width:100%;height:100%;object-fit:cover; filter:blur(20px) grayscale(.3) brightness(.55); transform:scale(1.12); transition:filter 1s ease, transform 1s ease; }
+
 .modal-photo.hint1 img{filter:blur(12px) grayscale(.2) brightness(.65);}
+
 .modal-photo.hint2 img{filter:blur(6px) grayscale(.05) brightness(.8);}
+
 .modal-photo.revealed img{filter:none;transform:scale(1);}
+
 .modal-photo .stamp{ position:absolute;bottom:10px;right:10px; font-family:'Share Tech Mono', monospace; font-size:12px; color:var(--blue-light); background:rgba(4,10,19,.7); border: 1px solid var(--blue-light); padding:3px 10px; opacity:0;transform:translateY(6px); transition:all .6s ease .3s; text-transform: uppercase; }
+
 .modal-photo.revealed .stamp{opacity:1;transform:translateY(0);}
 
+
+
 .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; width: 100%; }
+
 .photo-grid-item { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: #000; cursor: pointer; border: 1.5px solid rgba(143,196,238,.2); transition: transform 0.2s ease, border-color 0.2s ease; }
+
 .photo-grid-item:hover { transform: scale(1.03); border-color: var(--blue-light); z-index: 2; }
+
 .photo-grid-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
 
+
+
 /* --- MAPOVÁ MINIHRA --- */
+
 .map-layout-container { display: flex; gap: 24px; width: 100%; height: 100%; min-height: 0; }
+
 .map-col-left { flex: 3.5; display: flex; flex-direction: column; min-width: 300px; min-height: 0; }
+
 .map-col-right { flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+
 .map-interactive-wrapper { 
+
   position: relative; 
+
   width: 100%; 
+
   flex: 1; 
+
   min-height: 0; 
+
   background: rgba(0,0,0,0.5); 
+
   border-radius: 8px; 
+
   border: 1px solid rgba(143,196,238,.3); 
+
   overflow: hidden; 
+
   touch-action: none; 
+
   user-select: none; 
+
 }
+
 .map-image-container { 
+
   position: relative; 
+
   display: block; 
+
   width: 100%; 
+
   min-width: 800px; 
+
   cursor: crosshair; 
+
   transform-origin: 0 0; 
+
   will-change: transform; 
+
 }
+
 .map-image-container img { display: block; width: 100%; height: auto; pointer-events: none; }
 
+
+
 .map-pin.solved-temp { position: absolute; width: 40px; height: 40px; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #4caf50; box-shadow: 0 0 20px #4caf50; z-index: 5; animation: ping-fade 1s ease-out forwards; pointer-events: none; }
+
 @keyframes ping-fade { 0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
+
 
 .desktop-hide { display: none !important; }
 
+
+
 /* LIGHTBOX */
+
 #lightbox { position: fixed; inset: 0; background: rgba(4,10,19,0.95); backdrop-filter: blur(5px); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 16px; }
+
 #lightbox.open { opacity: 1; pointer-events: auto; }
+
 #lightbox img { max-width: 100%; max-height: 70vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid rgba(143,196,238,.3); object-fit: contain; }
+
 .lightbox-controls { margin-top: 20px; display: flex; width: 100%; max-width: 320px; }
+
 .lightbox-close { position: absolute; top: 16px; right: 24px; font-size: 40px; color: var(--blue-pale); cursor: pointer; transition: color 0.2s; z-index: 110; }
+
 .lightbox-close:hover { color: var(--blue-light); }
 
+
+
 .step-label{ font-family: 'Share Tech Mono', monospace; font-size:12px;letter-spacing:.16em;text-transform:uppercase; color:var(--blue-light);opacity:.75;margin-bottom:6px; }
+
 .prompt{ font-family:'Inter', sans-serif; font-size:17px;margin:0 0 14px;line-height:1.4; color:var(--blue-pale); }
 
+
+
 /* INPUTS & BTNS */
+
 input[type=text]{ width:100%;padding:12px 14px; border:1.5px solid rgba(143,196,238,.3); border-radius:4px; font-family:'Inter', sans-serif; font-size:16px; background:rgba(4,10,19,.5); color:var(--ink); margin-bottom:12px; -webkit-appearance: none; }
+
 input[type=text]::placeholder{color:var(--muted);}
+
 input[type=text]:focus{outline:none;border-color:var(--blue-light);}
 
+
+
 button{ font-family:'Inter', sans-serif; font-size:16px;letter-spacing:.03em; background:var(--blue); color:#04101c; border:none;padding:12px 22px;border-radius:4px; cursor:pointer;width:100%;font-weight:700; transition:background .2s ease, transform .1s ease; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+
 button:hover{background:var(--blue-light);}
+
 button:active{transform:scale(.98);}
+
 button.ghost{ background:transparent;color:var(--blue-light); border:1.5px solid rgba(143,196,238,.4); margin-top: 8px; }
+
 button.ghost:hover{background:rgba(143,196,238,.08);}
+
 .row-btns{display:flex;gap:10px;width:100%;}
+
 .row-btns button{flex:1;}
+
 .geo-btn { background: var(--gold); }
+
 .geo-btn:hover { background: #ebd098; }
+
 .geo-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
 .dl-btn { background: var(--blue-pale); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 4px; font-weight: 700; color: #04101c; transition: all 0.2s; width: 100%; text-align: center; min-height: 44px; cursor: pointer; }
+
 .dl-btn:hover { background: #fff; }
 
+
+
 /* Speciální fixní tlačítko pro adresu */
+
 .adresa-btn { background: rgba(156, 39, 176, 0.2) !important; border-color: #9c27b0 !important; color: #e1bfff !important; margin-top: 10px; transition: all 0.2s ease; display: inline-block; width: 100%; max-width: 320px; height: 48px; text-align: center; flex-shrink: 0; }
+
 .adresa-btn:hover { background: rgba(156, 39, 176, 0.4) !important; color: #fff !important; }
+
 .adresa-btn .glitch-text { font-family: 'Share Tech Mono', monospace; font-size: 14px; letter-spacing: 1px; }
 
+
+
 .message{font-size:15px;margin-top:10px;min-height:20px; font-weight: 500;}
+
 .message.err{color:#e59a9a;}
+
 .reveal-box{text-align:center;animation:fadein .5s ease;}
+
 .reveal-box .place{ font-family:'Inter', sans-serif; font-size:20px;color:var(--blue-pale); margin:12px 0 18px;line-height:1.35; }
+
 @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
 .shake{animation:shake .4s;}
+
 @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
+
 .modal-close{ position:absolute;top:-14px;right:-14px; width:34px;height:34px;border-radius:50%; background:var(--bg-panel); border:1px solid rgba(143,196,238,.25); color:var(--blue-pale); display:flex;align-items:center;justify-content:center; cursor:pointer;font-size:18px; z-index: 10; }
 
+
+
 /* ---------- FINALE ---------- */
+
 #finaleScreen {
+
   padding: 0; /* Vyresetujeme odsazení pro full-screen efekt */
+
 }
+
 .finale-wrap {
+
   display: flex;
+
   flex-direction: row;
+
   width: 100%;
+
   max-width: none; /* Odstraníme omezení šířky */
+
   height: 100vh;
+
   height: 100dvh;
+
   z-index: 10;
+
   position: relative;
+
   text-align: left;
+
 }
+
 .finale-left {
+
   flex: 1; /* Zabere polovinu obrazovky */
+
   height: 100%;
+
 }
+
 .finale-img {
+
   width: 100%;
+
   height: 100%;
+
   object-fit: cover; /* Roztáhne obrázek na celou plochu levé části bez deformace */
+
   border-radius: 0;
+
   margin: 0;
+
   box-shadow: none;
+
 }
+
 .finale-right {
+
   flex: 1; /* Zabere druhou polovinu */
+
   display: flex;
+
   flex-direction: column;
+
   justify-content: center;
+
   padding: 80px;
+
   background: var(--bg-deep);
+
   border-left: 2px solid var(--blue);
+
 }
+
 .finale-right h2 {
+
   font-family: 'Inter', sans-serif;
+
   font-size: clamp(28px, 4vw, 42px);
+
   color: var(--blue-pale);
+
   margin: 0 0 24px;
+
 }
+
 .finale-right p {
+
   font-size: clamp(17px, 2vw, 20px);
+
   line-height: 1.6;
+
   color: var(--ink);
+
 }
 
-/* RESPONSIVE FINALE & MAP - MOBILY */
+
+
+/* RESPONSIVE FINALE - MOBILY */
+
 @media (max-width: 800px) {
-  /* FINALE MOBIL */
+
   .finale-wrap {
+
     flex-direction: column;
-  }
-  .finale-left {
-    flex: none;
-    height: 50vh; /* Na mobilu zabere fotka horní půlku */
-  }
-  .finale-right {
-    flex: none;
-    height: 50vh;
-    padding: 30px;
-    border-left: none;
-    border-top: 2px solid var(--blue);
-    justify-content: flex-start;
-    overflow-y: auto;
+
   }
 
-  /* LAYOUT MOBIL */
-  .layout-container { flex-direction: column; gap: 24px; }
-  .sidebar { flex: none; width: 100%; flex-direction: row; align-items: flex-start; gap: 16px; padding: 16px; }
-  .commander-photo { width: 70px; height: 70px; }
-  .messages-container { min-height: auto; flex: 1; }
-  .grid { gap: 16px 12px; }
-  .modal-card.modal-wide { max-width: 420px; }
-  .modal-split { flex-direction: column; gap: 20px;}
-  .dual-chat-layout { flex-direction: column; }
-  
-  /* OPRAVA MAPY PRO MOBIL (Sloupcové zobrazení, ne řádkové) */
-  .map-layout-container { flex-direction: column; gap: 20px; }
-  .map-col-left { flex: none; height: 50vh; min-height: 250px; width: 100%; }
-  .map-col-right { flex: none; flex-direction: column; align-items: center; width: 100%; text-align: center; }
-  .map-col-right .photo-wrap { width: 100%; max-width: 180px; margin: 0 auto; }
-  .map-col-right .msg-wrap { width: 100%; margin-top: 10px; }
-  
-  .desktop-hide { display: block !important; }
-  .mobile-hide { display: none !important; }
+  .finale-left {
+
+    flex: none;
+
+    height: 50vh; /* Na mobilu zabere fotka horní půlku */
+
+  }
+
+  .finale-right {
+
+    flex: none;
+
+    height: 50vh;
+
+    padding: 30px;
+
+    border-left: none;
+
+    border-top: 2px solid var(--blue);
+
+    justify-content: flex-start;
+
+    overflow-y: auto;
+
+  }
+
 }
+
+
+
+/* ---------- HACKING MINIGAME ---------- */
+
+.hack-container { width: 100%; padding: 20px; background: rgba(0,0,0,0.6); border: 1px solid rgba(143, 196, 238, 0.3); border-radius: 8px; text-align: center; position: relative; }
+
+.hack-nodes { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+
+.h-node { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); transition: all 0.2s; }
+
+.h-node.active { background: #4caf50; border-color: #4caf50; box-shadow: 0 0 12px #4caf50; }
+
+.h-node.villain { border-color: red; background: rgba(255,0,0,0.3); }
+
+.h-track { position: relative; width: 100%; height: 36px; background: #08111a; border: 1px solid rgba(143, 196, 238, 0.4); border-radius:4px; margin-bottom: 20px; overflow: hidden; }
+
+.h-zone { position: absolute; height: 100%; width: 20%; background: rgba(76, 175, 80, 0.3); left: 40%; border-left: 2px solid #4caf50; border-right: 2px solid #4caf50; }
+
+.h-cursor { position: absolute; height: 100%; width: 3px; background: #ff4444; left: 0%; box-shadow: 0 0 10px red; }
+
+.h-node.purple { background: #9c27b0 !important; border-color: #9c27b0 !important; box-shadow: 0 0 15px #9c27b0 !important; }
+
+
+
+/* ---------- DISTORTED VILLAIN SCREENS ---------- */
+
+#villainScreen, #villainScreenFinale { position: fixed; inset: 0; background: rgba(10, 0, 15, 0.95); z-index: 150; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+
+#villainScreen.enter, #villainScreenFinale.enter { opacity: 1; pointer-events: auto; }
+
+#villainScreen.enter .villain-card, #villainScreenFinale.enter .villain-card { transform: scale(1); opacity: 1; }
+
+.villain-card { width: 100%; max-width: 500px; background: rgba(156, 39, 176, 0.05); border: 1px solid #9c27b0; border-radius: 10px; padding: 30px; box-shadow: 0 0 40px rgba(156, 39, 176, 0.5); transform: scale(0.8); opacity: 0; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease; }
+
+.glitch-box { animation: glitch-anim 3s infinite; }
+
+@keyframes glitch-anim { 0% { transform: translate(0) scale(1); } 10% { transform: translate(-2px, 2px) scale(1.01); } 15% { transform: translate(2px, -2px) scale(0.99); } 20% { transform: translate(0) scale(1); } 100% { transform: translate(0) scale(1); } }
+
+.villain-expert-box { background: transparent; border-left: 4px solid #9c27b0; padding: 16px; display: flex; flex-direction: column; width: 100%; }
+
+.villain-header { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; }
+
+.villain-header img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #9c27b0; box-shadow: 0 0 20px rgba(156, 39, 176, 0.6); filter: grayscale(1) sepia(1) hue-rotate(240deg) brightness(1.2) contrast(1.2); }
+
+.villain-name { font-family: 'Share Tech Mono', monospace; font-size: 20px; color: #d896ff; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.villain-msg-bubble { font-family: 'Share Tech Mono', monospace; font-size: 17px; color: #e1bfff; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+
+.villain-msg-bubble.typing::after { content: '█'; animation: blink 1s step-end infinite; color: #9c27b0; margin-left: 4px; }
+
+
+
+/* Erratic Text pro Záporáka */
+
+.erratic-text { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: #e1bfff; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; text-shadow: 0 0 4px rgba(156, 39, 176, 0.4); }
+
+.erratic-text.typing::after { content: '█'; animation: blink 0.5s step-end infinite; color: #d896ff; margin-left: 4px; }
+
+
+
+.erratic-text-finale { font-family: 'Share Tech Mono', monospace; font-size: 16px; color: #e1bfff; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap; animation: flicker 3s infinite; text-shadow: 0 0 6px rgba(156, 39, 176, 0.8); }
+
+.erratic-text-finale.typing::after { content: '█'; animation: blink 0.5s step-end infinite; color: #d896ff; margin-left: 4px; }
+
+@keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } 55% { opacity: 1; color: #fff; } 60% { color: #e1bfff; } }
+
+
+
+/* ---------- DATABASE MODAL ---------- */
+
+#dbModal { position: fixed; inset: 0; background: rgba(4,10,19,0.95); z-index: 50; display: none; flex-direction: column; padding: 40px 16px; align-items: center; }
+
+#dbModal.open { display: flex; }
+
+.db-container { width: 100%; max-width: 800px; background: var(--bg-panel); border: 1px solid var(--blue); border-radius: 8px; padding: 24px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+
+.db-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+.db-header h3 { margin: 0; color: var(--blue-pale); font-family: 'Share Tech Mono'; font-size: 22px; text-transform: uppercase; }
+
+.db-close { cursor: pointer; color: var(--muted); font-size: 28px; line-height: 1; }
+
+.db-close:hover { color: var(--blue-light); }
+
+.db-search { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid var(--blue-light); color: white; font-family: 'Share Tech Mono'; margin-bottom: 20px; font-size: 16px; border-radius: 4px;}
+
+.db-table-wrap { overflow-y: auto; flex: 1; border: 1px solid rgba(143,196,238,.2); border-radius: 4px; background: rgba(0,0,0,0.3); }
+
+.db-table { width: 100%; border-collapse: collapse; color: var(--blue-pale); font-size: 15px; text-align: left; table-layout: fixed; }
+
+.db-table th:nth-child(1) { width: 45%; }
+
+.db-table th:nth-child(2) { width: 20%; }
+
+.db-table th:nth-child(3) { width: 35%; }
+
+.db-table td { padding: 10px 12px; border-bottom: 1px solid rgba(143,196,238,.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.glitch-text { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+
+.db-table tr:hover { background: rgba(143,196,238,.1); }
+
+
+
+/* DUAL CHAT LAYOUT Pevné ukotvení */
+
+.dual-chat-layout { display: flex; flex-direction: row; gap: 20px; align-items: stretch; width: 100%; }
+
+.dual-col-left { flex: 1; display: flex; flex-direction: column; width: 100%; }
+
+.dual-col-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; margin-top: 16px; width: 100%; }
+
+.dual-col-right { flex: 1; display: flex; flex-direction: column; width: 100%; }
+
+#modalExpertMessages, #modalVillainMessages { min-height: 180px; display: flex; flex-direction: column; }
+
+
+
+/* ---------- TŘESENÍ PRO ADRESU ---------- */
+
+body.glitch-1 .layout-container { animation: gentleShake 0.4s infinite; }
+
+body.glitch-1 .folder-tab, body.glitch-1 .grid-title { transform: rotate(-1deg); }
+
+
+
+body.glitch-2 .layout-container { animation: medShake 0.2s infinite; }
+
+body.glitch-2 .sidebar, body.glitch-2 .grid, body.glitch-2 .grid-title { text-shadow: 2px 0 rgba(255,0,0,0.6), -2px 0 rgba(0,255,255,0.6); }
+
+body.glitch-2 .tile { transform: rotate(2deg) scale(1.02); }
+
+
+
+body.glitch-3 .layout-container { animation: heavyShake 0.05s infinite; filter: contrast(150%) hue-rotate(45deg); }
+
+body.glitch-3 * { text-shadow: 4px 0 rgba(255,0,0,1), -4px 0 rgba(0,255,255,1); }
+
+
+
+@keyframes gentleShake { 0%,100%{transform:translate(0,0);} 50%{transform:translate(2px,1px);} }
+
+@keyframes medShake { 0%,100%{transform:translate(0,0);} 25%{transform:translate(-3px,2px);} 75%{transform:translate(3px,-2px);} }
+
+@keyframes heavyShake { 0%{transform:translate(0,0);} 20%{transform:translate(-10px,6px);} 40%{transform:translate(10px,-6px);} 60%{transform:translate(-6px,-10px);} 80%{transform:translate(6px,10px);} 100%{transform:translate(0,0);} }
+
+
+
+/* RESPONSIVE DESIGN - MOBILNÍ ZAŘÍZENÍ */
+
+@media (max-width: 800px) {
+
+  .layout-container { flex-direction: column; gap: 24px; }
+
+  .sidebar { flex: none; width: 100%; flex-direction: row; align-items: flex-start; gap: 16px; padding: 16px; }
+
+  .commander-photo { width: 70px; height: 70px; }
+
+  .messages-container { min-height: auto; flex: 1; }
+
+  .grid { gap: 16px 12px; }
+
+  .modal-card.modal-wide { max-width: 420px; }
+
+  .modal-split { flex-direction: column; gap: 20px;}
+
+  .dual-chat-layout { flex-direction: column; }
+
+  
+
+  .map-layout-container { flex-direction: column; gap: 12px; }
+
+  .map-col-left { flex: 1; min-height: 50vh; min-width: 0; }
+
+  .map-col-right { flex: none; flex-direction: row; align-items: center; gap: 16px; min-width: 0; justify-content: flex-start;}
+
+  .map-col-right .photo-wrap { width: 120px; flex-shrink: 0; }
+
+  .map-col-right .msg-wrap { flex: 1; }
+
+  .desktop-hide { display: block !important; }
+
+  .mobile-hide { display: none !important; }
+
+}
+
+
 
 @media (max-width: 480px) {
+
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+
   .photo-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
   .six-number{font-size:120px;}
+
   .agent-wrap { padding: 30px 16px; }
+
   .villain-header img { width: 80px; height: 80px; }
+
   .overlay-grid { grid-template-columns: repeat(3, 1fr); }
+
   .expert-header img { width: 84px; height: 84px; }
+
   .expert-header { gap: 14px; margin-bottom: 12px; }
+
   .expert-name { font-size: 16px; }
+
 }
+
 </style>
+
 </head>
+
 <body>
 
+
+
 <!-- ÚVOD -->
+
 <div id="introScreen" class="screen">
+
   <div class="montage-stage" id="montageStage"></div>
+
   <div class="six-wrap" id="sixWrap">
+
     <div class="six-number" id="sixNumber">6</div>
+
     <div class="six-caption">let spolu</div>
+
     <div class="six-hint">klikni a začni</div>
+
   </div>
+
 </div>
+
+
 
 <!-- OVĚŘENÍ AGENTA -->
+
 <div id="agentScreen" class="screen hidden">
+
   <div class="agent-wrap">
+
     <h2 class="agent-title">Vítej agentko 006</h2>
+
     <p>Probíhá přístup do přísně tajného spisu. Pro ověření totožnosti zadej datum tvého výročí ve formátu ddmmrrrr.</p>
+
     <input type="text" id="agentInput" placeholder="ddmmrrrr" autocomplete="off" maxlength="8" inputmode="numeric">
+
     <button id="agentBtn" style="margin-top: 10px;">Ověřit identitu</button>
+
     <div id="agentMsg" class="message"></div>
+
   </div>
+
 </div>
+
+
 
 <!-- ROZLOŽENÍ -->
+
 <div id="gridScreen" class="screen hidden">
+
   <div class="layout-container">
+
     <div class="sidebar">
+
       <div class="commander-photo-wrap">
+
         <img id="commanderImg" src="https://imgur.com/UAOe0nK.jpeg" alt="Velitel" class="commander-photo" onclick="openLightbox(this.src)">
+
       </div>
+
       <div class="messages-container" id="commanderMessages"></div>
+
     </div>
+
     <div class="main-content">
+
       <div class="grid-title">Vyšetřovací spis</div>
+
       <div class="grid-sub">Analyzuj zajištěné stopy a odhal historii subjektu.</div>
+
       <div class="grid" id="grid"></div>
+
     </div>
+
   </div>
+
 </div>
+
+
 
 <!-- FINÁLE -->
+
 <div id="finaleScreen" class="screen hidden">
+
   <div id="finaleReveal" class="finale-wrap hidden">
+
     <div class="finale-left">
+
       <img id="finalePhoto" class="finale-img" src="">
+
     </div>
+
     <div class="finale-right">
+
       <h2 id="finaleTitle"></h2>
+
       <p id="finaleText"></p>
+
       
+
       <!-- Tlačítko pro reset hry a smazání uloženého postupu -->
+
       <button onclick="resetGame()" class="ghost" style="margin-top: 40px; max-width: 250px;">Smazat postup a hrát znovu</button>
+
     </div>
+
   </div>
+
 </div>
+
+
 
 <!-- STANDARDNÍ MODAL PRO STOPY -->
+
 <div id="modalBackdrop">
+
   <div class="modal-card" id="modalCard">
+
     <div class="modal-close" id="modalClose">&times;</div>
+
     <div id="modalContent"></div>
+
   </div>
+
 </div>
+
+
 
 <!-- HACKING VILLAIN SCREEN (Level 4) -->
+
 <div id="villainScreen" class="hidden">
+
   <div class="modal-card villain-card glitch-box">
+
     <div class="villain-expert-box">
+
       <div class="villain-header">
+
         <img src="https://imgur.com/kELlPUW.jpeg" alt="Neznámý">
+
         <div class="villain-name">Neznámý uživatel</div>
+
       </div>
+
       <div id="villainMessages" style="min-height: 80px;"></div>
+
     </div>
+
   </div>
+
 </div>
+
+
 
 <!-- FINÁLNÍ VILLAIN SCREEN (Třesení adresy) -->
+
 <div id="villainScreenFinale" class="hidden">
+
   <div class="villain-card glitch-box" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+
     <img src="https://imgur.com/kELlPUW.jpeg" style="width:160px; height:160px; border-radius:50%; border:3px solid #9c27b0; margin-bottom:24px; box-shadow:0 0 40px #9c27b0; filter:grayscale(1) sepia(1) hue-rotate(240deg) brightness(1.2) contrast(1.2);">
+
     <div id="villainMessagesFinale" style="width:100%; min-height:80px;"></div>
+
   </div>
+
 </div>
+
+
 
 <!-- LIGHTBOX PRO FOTKY -->
+
 <div id="lightbox">
+
   <div class="lightbox-close" id="lbClose">&times;</div>
+
   <img id="lbImg" src="" alt="Detail fotografie">
+
   <div class="lightbox-controls">
+
     <div id="lbDownload" class="dl-btn">Stáhnout fotografii</div>
+
   </div>
+
 </div>
+
+
 
 <!-- DATABÁZE PASAŽÉRŮ -->
+
 <div id="dbModal">
+
   <div class="db-container">
+
     <div class="db-header">
+
       <h3>Systém Aerolinek</h3>
+
       <div class="db-close" onclick="closeDatabase()">&times;</div>
+
     </div>
+
     <input type="text" id="dbSearch" class="db-search" placeholder="Hledat jméno, sedadlo nebo PNR..." oninput="filterDatabase()">
+
     <div class="db-table-wrap">
+
       <table class="db-table">
+
         <thead><tr><th>Jméno</th><th>Sedadlo</th><th>Rezervace (PNR)</th></tr></thead>
+
         <tbody id="dbTableBody"></tbody>
+
       </table>
+
     </div>
+
   </div>
+
 </div>
 
+
+
 <script>
+
 /* ============================================================
+
    NASTAVENÍ LOKACÍ A FINÁLE
+
    ============================================================ */
+
 const CONFIG = {
+
   agentPassword: "15072020",
+
   
+
   stages: [
+
     { 
+
       photo:"Obrazky/trida.jpg", 
+
       answers:["ucitelka"], 
+
       hint:"Mělo by jít o jistou pedagožku, která byla s naším subjektem v kontaktu již v jeho začátcích.", 
+
       commanderMsg: [
+
         "Výborně agentko, podařilo se nám odhalit z jaké fotografie pochází výstřižek. O identitě pachatele nám sice moc neříká ale...",
+
         "Shodou okolností byla fotografie pořízena v objektu jež je úzce spjatý s jedním z našich informátorů, vyčkejte než Vás kontaktuje."
+
       ],
+
       label: "Identifikace osoby",
+
       prompt: "Zjistěte totožnost ženy (zadejte příjmení):",
+
       placeholder: "Příjmení",
+
       expertName: "Forenzní Expert",
+
       expertImg: "https://imgur.com/wA6hFXt.png",
+
       expertMsg: [
+
         "Dobrý den, agentko. Pomocí forenzních metod jsme se dopátrali první stopy, všechny nalezené důkazy směřují k této ženě. Zjistěte její totožnost a my se postaráme o zbytek."
+
       ],
+
       expertEvidencePhoto: "Obrazky/ucitelka.JPG"
+
     },
+
     { 
+
       photo: "https://imgur.com/DaHBLW3.jpg", 
+
       photos: [ 
+
         "Obrazky/1.jpeg",
+
         "Obrazky/2.jpeg",
+
         "Obrazky/6.jpg",
+
         "Obrazky/5.jpeg",
+
         "Obrazky/4.jpeg",
+
         "Obrazky/3.jpeg"
+
       ],
+
       type: "photo_grid",
+
       answers: ["20-1-4-5-1-19"], 
+
       hint: "Analytik zmínil vizuální prohledání... to ale není vše. Zkuste si fotky stáhnout a podívat se zda tam není napsáno něco navíc?", 
+
       code: "OSLAVA2020", 
+
       commanderMsg: [
+
         "Skvělá práce, myslí Vám to... Zřejmě bude na místě přehodnocení výše mezd našich datových expertů.",
+
         "Nyní Vám však analytické myšlení zřejmě příliš nepomůže, následující mise otestuje i Vaše fyzické kvality. Prosím přejděte k další stopě..."
+
       ],
+
       label: "Zajištěné fotografie", 
+
       prompt: "Najděte další vodítko ukryté v digitální stopě fotografií:", 
+
       placeholder: "Zadejte skrytý kód",
+
       expertName: "Datový analytik",
+
       expertImg: "https://imgur.com/9kHRJFl.png",
+
       expertMsg: [
+
         "Díky kódu, který jste získala od informátorky máme nyní přistup k databázi fotografií přímo z místa činu. I přes zapojení nejmodernějších metod umělé inteligence se nám však nepodařilo získat žádná další vodítka...",
+
         "Agentko, myslím, že se nacházíme ve slepé uličce. Zasílám Vám fotografie, ale z vizuálního hlediska jsme je propátrali do nejmenších detailů... Napadá Vás něco?"
+
       ]
+
     },
+
     { 
+
       photo: "https://imgur.com/J03Xzxs.jpg",
+
       answers: [],
+
       code: "",
+
       commanderMsg: [
+
         "Signál potvrzen, výborná práce přímo v terénu, agentko. Jste blíž, než si myslíte.",
+
         "Díky našemu kryptografickému týmu jsme signál dešifrovali, to nám umožnilo jej sledovat. Další stopa však míří do ciziny, vypadá to že náš cíl se krátce po krádeži rozhodl vycestovat..."
+
       ],
+
       label: "Terénní analýza signálu", 
+
       prompt: "Dostaňte se na určené místo a spusťte analýzu signálu.",
+
       expertName: "Kryptolog",
+
       expertImg: "https://imgur.com/EJxYhOy.png",
+
       expertMsg: [
+
         "Pomocí kódu, který jste získala z fotografie, se nám podařilo nalézt jej v šifrované komunikaci vyslané odněkud z regionu Ústeckého kraje, musí jít o výškovou budovu schopnou vysílat signál.",
+
         "Díky analýze signálu jsme vytipovali tři místa odkud mohl signál vzejít. Vysíláme Vás do terénu agentko, dostaňte se na místo a spusťte analýzu, my Vám potvrdíme zda jde o shodu či nikoliv.\n\n1. 50.7930503N, 14.1085081E\n2. 50.6756544N, 14.0037250E\n3. 50.6389983N, 13.8596914E"
+
       ],
+
       type: "geolocation", 
+
       targetCoords: { lat: 50.6837236, lon: 13.9928667 },
+
       tolerance: 200 
+
     },
+
     { 
+
       type: "hacking",
+
       code: "", 
+
       label: "Průnik do systému letiště", 
+
       prompt: "Pachatel komunikoval se serverem aerolinek. Prolomte bezpečnostní uzly. Klikněte na DEKÓDOVAT přesně ve chvíli, kdy je kurzor v zelené zóně.",
+
       commanderMsg: [
+
         "Spojení přerušeno!",
+
         "Pachatel zachytil Váš průnik do systému letiště a odřízl nás.",
+
         "Naštěstí se nám v těch pár vteřinách podařilo stáhnout hrubý výpis pasažérů letu.",
+
         "Najděte v seznamu jeho společníky a pokuste se je kontaktovat pro zjištění čísla inkriminovaného letu."
+
       ],
+
       hasDatabaseBtn: true
+
     },
+
     { 
+
       code: "FR8330|fr8330",
+
       codePrompt: "Ověření přístupu do mezinárodní databáze letů. Zadejte zjištěné číslo letu:",
+
       type: "map_game",
+
       label: "Analýza trasy pohybu", 
+
       prompt: "Identifikujte místo kde byla fotografie pořízena a označte jej na mapě. Každá chyba nás stojí drahocenný čas agentko", 
+
       commanderMsgOnCode: [
+
         "Skvělá práce agentko, navzdory původnímu nezdaru jsme přeci o krok blíž k vypátrání pachatele. Díky porovnání biometrických údajů pasažérů s kamerovými záznamy letištního systému se nám podařilo získat fotografii pachatele...",
+
         "[IMG]https://imgur.com/sXQjAFk.jpeg",
+
         "Tento muž však necestoval poprvé ani naposled, s předmětem loupeže se následně pohyboval skrz několik dalších zemí... Agentko, jde nám o čas. Musíme přijít na to, kde se nachází v tuto chvíli."
+
       ],
+
       commanderMsg: [
+
           "Cesta zmapována. Díky našemu týmu víme, že ne všechna místa po kterých se pohyboval jsou spojena s uloupeným objektem... Jeho sledování nás ale dovedlo k této adrese",
+
           "[ADRESA_BTN]" 
+
       ],
+
       mapGame: {
+
         mapImg: "Obrazky/mapa.png",
+
         timeLimit: 10 * 60,
+
         photos: [
+
            { id: "it", name: "Itálie", src: "https://imgur.com/I5q0na4.png", x: 50.9, y: 39.2, r: 3 },
+
            { id: "hr", name: "Chorvatsko", src: "https://imgur.com/EZt1zYz.png", x: 51.6, y: 38.5, r: 2.5 },
+
            { id: "il", name: "Izrael", src: "https://imgur.com/PNmbhdD.png", x: 56.7, y: 45.5, r: 2.5 },
+
            { id: "eg", name: "Egypt", src: "https://imgur.com/DdxrvTL.jpeg", x: 55.5, y: 47.9, r: 4 },
+
            { id: "gr", name: "Řecko", src: "https://imgur.com/2n677H3.jpeg", x: 53.3, y: 40.9, r: 2 }, 
+
            { id: "pe", name: "Peru", src: "https://imgur.com/AnY2bHp.png", x: 25.8, y: 66.9, r: 4 },
+
            { id: "pl", name: "Polsko", src: "https://imgur.com/Sd7XMTz.png", x: 52.5, y: 32.0, r: 3 },
+
            { id: "ge", name: "Gruzie", src: "https://imgur.com/EWdGGaa.png", x: 59.1, y: 38.6, r: 2 }, 
+
            { id: "id", name: "Indonesie", src: "https://imgur.com/dqrgDTp.png", x: 76.0, y: 64.5, r: 5 } 
+
         ]
+
       }
+
     },
+
     { 
+
       type: "dual_chat", 
+
       photo: "Obrazky/tada.jpeg", // ZDE DEJ SVOU FOTKU!
+
       answers: ["tadeas", "tadeáš"], // Nastavené jméno (funguje s diakritikou i bez)
+
       label: "Konečné zúčtování",
+
       expertName: "Velitel HQ",
+
       expertImg: "https://imgur.com/UAOe0nK.jpeg",
+
       expertMsg: [
+
           "Tak tady je... Poznáváte ho agentko?", 
+
           "Pokud už víte, kdo za tím vším celou dobu stál, napište nám jeho jméno a my už se o zbytek postaráme!"
+
       ],
+
       villainName: "Neznámý uživatel",
+
       villainImg: "https://imgur.com/kELlPUW.jpeg",
+
       // Znak ^ znamená pauzu, znak \b znamená smazání posledního písmene (pro překlepy)
+
       villainMsg: [
+
           "Víš, ta věc co jsem tenkrát ukradl...^", 
+
           "Byla sj\b\bjsi to ty.^", 
+
           "To kvůli tobě uzž\b\bž mě 6 let hl^edají."
+
       ]
+
     }
+
   ],
+
   endings: {
+
       commander: {
+
           photo: "https://imgur.com/DYCcYpK.png", // Klasické zakončení
+
           title: "Mise úspěšná: Subjekt identifikován.",
+
           text: "Šest let vyšetřování končí a pachatel bude předán spravedlnosti. Zůstala jsi na straně zákona. Připrav se na debriefing."
+
       },
+
       villain: {
+
           photo: "https://imgur.com/xnyEM7a.png", // Temnější/romantičtější zakončení
+
           title: "Systém narušen: Agentka přeběhla.",
+
           text: "Zvolila jsi temnou stranu... ale s ním. Šest let vyšetřování končí zběhnutím ze služby. Připrav se na únik."
+
       }
+
   }
+
 };
 
+
+
 const COMMANDER_INTRO = [
+
   "Vítejte agentko 006, je mi ctí, že vyslali pro tento případ právě Vás. Pojďme Vás uvést do děje...",
+
   "Vám přidělený případ se zabývá osobou podezřelou ze závažného činu. V tuto chvíli Vám ale nemohu sdělit čím přesně se provinil. Prosím, naši experti pro Vás byli schopni připravit první stopu. Pusťte se do práce agentko, hodně štěstí!"
+
 ];
 
+
+
 const MONTAGE_PHOTOS = [
+
   "https://imgur.com/lfHwTlR.jpg", "https://imgur.com/Op2Ve8W.jpg", "https://imgur.com/BB13iTC.jpg", "https://imgur.com/ae1G1mQ.jpg",
+
   "https://imgur.com/BuGmsQN.jpg", "https://imgur.com/WyvPftC.jpg", "https://imgur.com/xJ4fPbz.jpg", "https://imgur.com/TQTBfu2.jpg",
+
   "https://imgur.com/UezJgoX.jpg", "https://imgur.com/UgWb8eQ.jpg", "https://imgur.com/kfznKOM.jpg", "https://imgur.com/H8bqjZL.jpg",
+
   "https://imgur.com/Rmfg0U4.jpg", "https://imgur.com/58BX28p.jpg", "https://imgur.com/fCZMcU7.jpg", "https://imgur.com/AdFy96T.jpg",
+
   "https://imgur.com/4NDC586.jpg", "https://imgur.com/dWZhFda.jpg", "https://imgur.com/8QiLwun.jpg", "https://imgur.com/g0lbv8x.jpg",
+
   "https://imgur.com/AP8hOee.jpg", "https://imgur.com/oIEmxOj.jpg", "https://imgur.com/C8hAji7.jpg", "https://imgur.com/RdjJJSC.jpg",
+
   "https://imgur.com/XHaqmwN.jpg", "https://imgur.com/VWtL1JF.jpg", "https://imgur.com/yaZuYY5.jpg", "https://imgur.com/yaZuYY5.jpg",
+
   "https://imgur.com/VpEJkiJ.jpg", "https://imgur.com/GDF5FVw.jpg", "https://imgur.com/XXUwbGT.jpg"
+
 ];
+
+
 
 const norm = s => (s||"").toString().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/\s+/g," ");
 
+
+
 let tileStates = ['guessing', 'locked', 'locked', 'locked', 'locked', 'locked'];
+
 let finaleReached = false; 
+
 let finaleUnlocked = false;
+
 let selectedEnding = 'commander';
+
 let modal = { stageIndex: null, state: null, hintLevel: 0 };
 
+
+
 let commanderTypingTimeout = null;
+
 let modalTypingTimeout = null;
+
 let adresaClicks = 0;
 
+
+
 /* Map Game Proměnné */
+
 let currentMapStep = 0;
+
 let mapTimeRemaining = 0;
+
 let mapTimerInterval = null;
+
+
 
 window.wasMapDragged = false;
 
+
+
 /* ============================================================
+
    GENERATOR DATABÁZE PASAŽÉRŮ
+
    ============================================================ */
+
 const czechFirstM = ["Jan","Petr","Jakub","Tomáš","Lukáš","Matěj","Vojtěch","Ondřej","Filip"];
+
 const czechFirstF = ["Eliška","Anna","Adéla","Tereza","Sofie","Viktorie","Karolína","Natálie"];
+
 const czechLastM = ["Novák","Svoboda","Novotný","Dvořák","Černý","Procházka","Kučera","Veselý"];
+
 const czechLastF = ["Nováková","Svobodová","Novotná","Dvořáková","Černá","Procházková","Kučerová"];
+
 const itFirstM = ["Mario","Luigi","Giovanni","Francesco","Andrea","Matteo","Alessandro","Lorenzo"];
+
 const itFirstF = ["Giulia","Sofia","Martina","Chiara","Sara","Alice","Aurora","Ginevra"];
+
 const itLast = ["Rossi","Russo","Ferrari","Esposito","Bianchi","Romano","Colombo","Ricci"];
 
+
+
 const passengers = [];
+
 function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
 function randSeat() { return Math.floor(Math.random() * 32 + 1) + randItem(["A","B","C","D","E","F"]); }
+
 function randPNR() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
 
+
+
 for(let i=0; i<119; i++) {
+
   let r = Math.random(), fName, lName;
+
   if(r < 0.25) { fName = randItem(czechFirstM); lName = randItem(czechLastM); }
+
   else if(r < 0.5) { fName = randItem(czechFirstF); lName = randItem(czechLastF); }
+
   else if(r < 0.75) { fName = randItem(itFirstM); lName = randItem(itLast); }
+
   else { fName = randItem(itFirstF); lName = randItem(itLast); }
+
   passengers.push({ name: fName + " " + lName, seat: randSeat(), pnr: randPNR() });
+
 }
+
+
 
 const pnrNagozenski = "X7B9Q2";
+
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Jorika Nagozenski", seat: "14C", pnr: pnrNagozenski });
+
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Lenka Nagozenski", seat: "14B", pnr: pnrNagozenski });
+
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Michal Nagozenski", seat: "14A", pnr: pnrNagozenski });
+
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { name: "Kristýna Malenčuková", seat: randSeat(), pnr: randPNR() });
+
 passengers.splice(Math.floor(Math.random() * passengers.length), 0, { isGlitch: true, name: "", seat: "", pnr: "" });
 
+
+
 window.openDatabase = function() {
+
   document.getElementById("dbModal").classList.add("open");
+
   renderDatabase();
+
 };
+
 window.closeDatabase = function() { 
+
   document.getElementById("dbModal").classList.remove("open"); 
+
   if (glitchInterval) clearInterval(glitchInterval);
+
 };
+
 window.filterDatabase = function() { renderDatabase(document.getElementById("dbSearch").value.toLowerCase()); };
 
+
+
 let glitchInterval;
+
 const glitchChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*<>?/~{}[]";
 
+
+
 function randomGlitchStr(len) {
+
     let s = '';
+
     for(let i=0; i<len; i++) s += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+
     return s;
+
 }
+
+
 
 function renderDatabase(filter = "") {
+
   const tb = document.getElementById("dbTableBody");
+
   tb.innerHTML = "";
+
   
+
   passengers.forEach(p => {
+
     if(p.isGlitch || p.name.toLowerCase().includes(filter) || p.seat.toLowerCase().includes(filter) || p.pnr.toLowerCase().includes(filter)) {
+
       if (p.isGlitch) {
+
          tb.innerHTML += `<tr>
+
             <td><span class="glitch-text" data-len="16" style="color:#d896ff; font-weight:bold;"></span></td>
+
             <td><span class="glitch-text" data-len="3" style="color:#d896ff; font-weight:bold;"></span></td>
+
             <td><span class="glitch-text" data-len="6" style="color:#9c27b0; font-weight:bold;"></span></td>
+
          </tr>`;
+
       } else {
+
          tb.innerHTML += `<tr><td>${p.name}</td><td>${p.seat}</td><td><span style="color:var(--muted)">${p.pnr}</span></td></tr>`;
+
       }
+
     }
+
   });
+
+
 
   if (glitchInterval) clearInterval(glitchInterval);
+
   
+
   glitchInterval = setInterval(() => {
+
       document.querySelectorAll('.glitch-text').forEach(el => {
+
           const len = parseInt(el.getAttribute('data-len')) || 5;
+
           el.innerText = randomGlitchStr(len);
+
       });
+
   }, 70); 
+
 }
+
+
 
 /* ---------- INTRO MONTAGE ---------- */
+
 function runMontage() {
+
   const stage = document.getElementById("montageStage");
+
   stage.innerHTML = MONTAGE_PHOTOS.map(src => `<img src="${src}">`).join("");
+
   const imgs = stage.querySelectorAll("img");
+
   let i = 0;
+
   const showNext = () => {
+
     if(i > 0) imgs[i-1].classList.remove("flash");
+
     imgs[i].classList.add("flash");
+
     i++;
+
     if(i < imgs.length){
+
       setTimeout(showNext, 190);
+
     } else {
+
       stage.classList.add("settled");
+
       setTimeout(()=>{
+
         document.getElementById("sixWrap").classList.add("show");
+
       }, 250);
+
     }
+
   };
+
   setTimeout(showNext, 300);
+
 }
+
+
 
 function preloadImagesAndStart() {
+
   let loaded = 0;
+
   const total = MONTAGE_PHOTOS.length;
+
   MONTAGE_PHOTOS.forEach(src => {
+
     const img = new Image();
+
     img.onload = img.onerror = () => {
+
       loaded++;
+
       if (loaded === total) runMontage(); 
+
     };
+
     img.src = src;
+
   });
+
 }
+
+
 
 document.getElementById("sixNumber").addEventListener("click", ()=>{
+
   const sixWrap = document.getElementById("sixWrap");
+
   if(!sixWrap.classList.contains("show")) return;
+
   const intro = document.getElementById("introScreen");
+
   const agentScreen = document.getElementById("agentScreen");
+
   
+
   intro.classList.add("leaving");
+
   agentScreen.classList.remove("hidden");
+
   
+
   setTimeout(()=>{
+
     intro.classList.add("hidden");
+
     agentScreen.classList.add("enter");
+
     if(window.innerWidth > 800) document.getElementById("agentInput").focus();
+
   }, 700);
+
 });
+
+
 
 /* ---------- AGENT VERIFICATION ---------- */
+
 function verifyAgent() {
+
   const val = document.getElementById("agentInput").value.trim();
+
   if (val === CONFIG.agentPassword) {
+
     const agent = document.getElementById("agentScreen");
+
     const grid = document.getElementById("gridScreen");
 
+
+
     agent.classList.remove("enter");
+
     setTimeout(() => {
+
       agent.classList.add("hidden");
+
       renderGrid();
+
       grid.classList.remove("hidden");
+
       requestAnimationFrame(()=> requestAnimationFrame(()=> {
+
         grid.classList.add("enter");
+
         startCommanderTransmission(COMMANDER_INTRO);
+
         saveProgress();
+
       }));
+
     }, 500);
+
   } else {
+
     const msg = document.getElementById("agentMsg");
+
     msg.className = "message err";
+
     msg.textContent = "Přístup odepřen. Chybné datum.";
+
   }
+
 }
 
+
+
 document.getElementById("agentBtn").addEventListener("click", verifyAgent);
+
 document.getElementById("agentInput").addEventListener("keydown", (e) => {
+
   if (e.key === "Enter") verifyAgent();
+
 });
+
+
 
 /* ---------- ZPRÁVY VELITELE A ADRESA GLITCH LOGIKA ---------- */
 
+
+
 function handleAdresaClick(e) {
+
     adresaClicks++;
+
     const btn = e.target.closest('.adresa-btn');
+
     const scr = document.body;
 
+
+
     if (adresaClicks === 1) {
+
         btn.innerHTML = "<span style='font-family:\"Share Tech Mono\", monospace; letter-spacing:1px;'>P*d V@doj#m&m !0/14</span>";
+
         scr.classList.add("glitch-1");
+
     } 
+
     else if (adresaClicks === 2) {
+
         btn.innerHTML = "<span style='font-family:\"Share Tech Mono\", monospace; letter-spacing:1px;'>P#d V@doj#mem 10/14</span>";
+
         scr.classList.remove("glitch-1");
+
         scr.classList.add("glitch-2");
+
     } 
+
     else if (adresaClicks === 3) {
+
         btn.innerHTML = "<span style='font-family:\"Share Tech Mono\", monospace; letter-spacing:1px;'>Pod Vodojemem 10/14</span>";
+
         scr.classList.remove("glitch-2");
+
         scr.classList.add("glitch-3");
+
         
+
         setTimeout(() => {
+
             scr.classList.remove("glitch-3");
+
             showFinalVillainSequence();
+
         }, 800);
+
     }
+
 }
+
+
 
 function startCommanderTransmission(msgs, hasDatabaseBtn = false, onComplete = null) {
+
   const container = document.getElementById("commanderMessages");
+
   container.innerHTML = "";
+
   clearTimeout(commanderTypingTimeout);
+
   
+
   function typeNextMessage(idx) {
+
     if (idx >= msgs.length) {
+
         if (onComplete) onComplete();
+
         return;
+
     }
+
     
+
     const text = msgs[idx];
+
+
 
     // Speciální pevné tlačítko pro glitchnutí adresy
+
     if (text === "[ADRESA_BTN]") {
+
         const btn = document.createElement("button");
+
         btn.className = "adresa-btn";
+
         btn.innerHTML = `<span class="glitch-text" data-len="21" style="color:inherit; font-weight:bold;"></span>`;
+
         btn.onclick = handleAdresaClick;
+
         container.appendChild(btn);
+
         
+
         let localGlitch = setInterval(() => {
+
             const el = btn.querySelector('.glitch-text');
+
             if(el && adresaClicks === 0) el.innerText = randomGlitchStr(21);
+
             else clearInterval(localGlitch);
+
         }, 70);
 
+
+
         commanderTypingTimeout = setTimeout(() => typeNextMessage(idx + 1), 1000);
+
         return;
+
     }
+
+
 
     if (text.startsWith("[IMG]")) {
+
         const msgDiv = document.createElement("div");
+
         msgDiv.className = "commander-msg";
+
         msgDiv.style.padding = "4px";
+
         msgDiv.style.background = "transparent";
+
         msgDiv.style.border = "none";
+
         const imgSrc = text.replace("[IMG]", "");
+
         msgDiv.innerHTML = `<img src="${imgSrc}" style="width:100%; border-radius:4px; border: 1.5px solid rgba(143, 196, 238, 0.4); cursor:zoom-in;" onclick="openLightbox(this.src)">`;
+
         container.appendChild(msgDiv);
+
         
+
         commanderTypingTimeout = setTimeout(() => typeNextMessage(idx + 1), 1800);
+
         return;
+
     }
 
+
+
     const msgDiv = document.createElement("div");
+
     msgDiv.className = "commander-msg typing";
+
     container.appendChild(msgDiv);
+
     let charIdx = 0;
+
     
+
     function typeChar() {
+
       if (charIdx < text.length) {
+
         msgDiv.textContent += text.charAt(charIdx);
+
         charIdx++;
+
         commanderTypingTimeout = setTimeout(typeChar, 35);
+
       } else {
+
         msgDiv.classList.remove("typing");
+
         
+
         if (idx === msgs.length - 1 && hasDatabaseBtn) {
+
           const btn = document.createElement("button");
+
           btn.className = "db-btn";
+
           btn.innerHTML = `Otevřít databázi pasažérů`;
+
           btn.onclick = window.openDatabase;
+
           container.appendChild(btn);
+
         }
+
         commanderTypingTimeout = setTimeout(() => typeNextMessage(idx + 1), 1800);
+
       }
+
     }
+
     typeChar();
+
   }
+
   typeNextMessage(0);
+
 }
+
+
 
 /* ---------- TYPING ZPRÁVY EXPERTA V MODALU ---------- */
+
 function typeModalExpertMessages(msgs, hasPhoto, onComplete = null) {
+
   const container = document.getElementById("modalExpertMessages");
+
   if(!container) return;
+
   container.innerHTML = "";
+
   clearTimeout(modalTypingTimeout);
+
   
+
   function typeNextMessage(idx) {
+
     if (idx >= msgs.length) {
+
       const evImg = document.getElementById("expertEvidence");
+
       if (evImg && hasPhoto) evImg.style.display = "block";
+
       if (onComplete) onComplete();
+
       return;
+
     }
+
     
+
     const msgDiv = document.createElement("div");
+
     msgDiv.className = "expert-msg-bubble typing";
+
     container.appendChild(msgDiv);
+
     const text = msgs[idx];
+
     let charIdx = 0;
+
     
+
     function typeChar() {
+
       if(!document.getElementById("modalExpertMessages")) return;
+
       if (charIdx < text.length) {
+
         msgDiv.textContent += text.charAt(charIdx);
+
         charIdx++;
+
         modalTypingTimeout = setTimeout(typeChar, 35);
+
       } else {
+
         msgDiv.classList.remove("typing");
+
         modalTypingTimeout = setTimeout(() => typeNextMessage(idx + 1), 1000);
+
       }
+
     }
+
     typeChar();
+
   }
+
   typeNextMessage(0);
+
 }
+
+
 
 /* SPECIÁLNÍ TYPING PRO ZÁPORÁKA (S CHYBAMI A PAUZAMI) */
+
 function typeModalVillainMessagesWithTypos(msgs, onComplete) {
+
     const container = document.getElementById("modalVillainMessages");
+
     if (!container) return;
+
     container.innerHTML = "";
+
     
+
     function typeNext(idx) {
+
         if (idx >= msgs.length) {
+
             if (onComplete) onComplete();
+
             return;
+
         }
+
         const b = document.createElement("div");
+
         b.className = "erratic-text typing";
+
         container.appendChild(b);
+
         
+
         const text = msgs[idx];
+
         let charIdx = 0;
+
         let currentStr = "";
+
         
+
         function typeChar() {
+
             if (!document.getElementById("modalVillainMessages")) return;
+
             if (charIdx < text.length) {
+
                 const char = text.charAt(charIdx);
+
                 
+
                 if (char === '\b') {
+
                     currentStr = currentStr.slice(0, -1);
+
                     b.textContent = currentStr;
+
                     charIdx++;
+
                     setTimeout(typeChar, 180); // Zpomalení při mazání
+
                 } else if (char === '^') {
+
                     charIdx++;
+
                     setTimeout(typeChar, 600); // Pauza
+
                 } else {
+
                     currentStr += char;
+
                     b.textContent = currentStr;
+
                     charIdx++;
+
                     setTimeout(typeChar, Math.random() * 60 + 50); // Pomalé psaní
+
                 }
+
             } else {
+
                 b.classList.remove("typing");
+
                 setTimeout(() => typeNext(idx + 1), 800);
+
             }
+
         }
+
         typeChar();
+
     }
+
     typeNext(0);
+
 }
+
+
 
 /* ---------- GRID S PŘÍPADY ---------- */
+
 function renderGrid(){
+
   if (finaleReached) {
+
     document.getElementById("gridScreen").classList.add("hidden");
+
     document.getElementById("finaleScreen").classList.remove("hidden");
+
     renderFinale();
+
     return;
+
   }
+
+
 
   const grid = document.getElementById("grid");
+
   grid.innerHTML = CONFIG.stages.map((s,i)=>{
+
     const state = tileStates[i];
+
     const caseNum = String(i+1).padStart(2, '0');
+
     let inner = `<div class="folder-tab"><span class="tab-text">Stopa ${caseNum}</span></div>`;
+
     
+
     if (state === 'locked') {
+
       inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#8fc4ee" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>`;
+
     } else if (state === 'needs_code') {
+
       inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#8fc4ee" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div class="needscode-text">Zadej kód</div></div>`;
+
     } else if (state === 'time_locked') {
+
       inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#d9b46a" stroke-width="1.6"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><div class="needscode-text" style="color:var(--gold);">Analýza</div></div>`;
+
     } else if (state === 'guessing') {
+
       if (s.type === "hacking" || s.type === "map_game" || s.type === "dual_chat") {
+
          inner += `<div class="folder-body" style="display:flex;align-items:center;justify-content:center;background:#08111a;border-color:#4caf50;"><span style="color:#4caf50;font-family:'Share Tech Mono';font-weight:bold;">>_ TERMINAL</span></div>`;
+
       } else {
+
          inner += `<div class="folder-body"><img src="${s.photo}"></div>`;
+
       }
+
     } else if (state === 'solved') {
+
       if (s.type === "hacking" || s.type === "map_game" || s.type === "dual_chat") {
+
          inner += `<div class="folder-body" style="display:flex;align-items:center;justify-content:center;background:#08111a;"><span style="color:var(--muted);font-family:'Share Tech Mono';font-weight:bold;">>_ TERMINAL</span></div>`;
+
       } else {
+
          inner += `<div class="folder-body"><img src="${s.photo}"></div>`;
+
       }
+
     }
+
     return `<div class="tile ${state}" data-index="${i}">${inner}</div>`;
+
   }).join("");
+
   
+
   grid.querySelectorAll(".tile").forEach(tile=>{
+
     const idx = parseInt(tile.dataset.index);
+
     const state = tileStates[idx];
+
     if(state !== 'locked') tile.addEventListener("click", ()=> openModal(idx, tile));
+
   });
+
 }
+
+
 
 /* ---------- MODAL ---------- */
+
 function openModal(idx, tileEl){
 
-  /* =======================================================
-     ZDE NASTAVUJEŠ DNY, KDY SE MÁ ODEMKNOUT 6. STOPA
-     0 = Neděle, 1 = Pondělí, 2 = Úterý, 3 = Středa
-     4 = Čtvrtek, 5 = Pátek, 6 = Sobota
-     ======================================================= */
   if (tileStates[idx] === 'time_locked') {
+
       const dayOfWeek = new Date().getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 4 || dayOfWeek === 7) {
+
+      if (dayOfWeek === 4 || dayOfWeek === 5) {
+
           adresaClicks = 0; // Resetování pro jistotu
+
           startCommanderTransmission(CONFIG.stages[4].commanderMsg, CONFIG.stages[4].hasDatabaseBtn);
+
       } else {
+
           startCommanderTransmission([
+
               "Přístup odepřen.",
+
               "Výsledky se vyhodnocují, přijďte později agentko."
+
           ], false);
+
           tileEl.classList.add("shake");
+
           setTimeout(() => tileEl.classList.remove("shake"), 400);
+
       }
+
       return; // Modal se nyní neotevírá, čeká se na interakci s panelem velitele
+
   }
+
+
 
   const rect = tileEl.getBoundingClientRect();
+
   const ox = ((rect.left + rect.width/2) / window.innerWidth) * 100;
+
   const oy = ((rect.top + rect.height/2) / window.innerHeight) * 100;
+
   const card = document.getElementById("modalCard");
+
   card.style.setProperty("--ox", ox + "%");
+
   card.style.setProperty("--oy", oy + "%");
 
+
+
   modal.stageIndex = idx;
+
   modal.state = tileStates[idx];
+
   modal.hintLevel = 0;
 
+
+
   const stage = CONFIG.stages[idx];
+
   
+
   if (stage.type === "map_game") {
+
       card.classList.add("modal-map");
+
       card.classList.remove("modal-wide");
+
   } else if (modal.state === "guessing" && (stage.expertMsg || stage.type === "photo_grid" || stage.type === "dual_chat")) {
+
       card.classList.add("modal-wide");
+
       card.classList.remove("modal-map");
+
   } else {
+
       card.classList.remove("modal-wide");
+
       card.classList.remove("modal-map");
+
   }
+
+
 
   document.getElementById("modalBackdrop").classList.add("open");
+
   renderModal();
+
 }
+
+
 
 function closeModal(){
+
   document.getElementById("modalBackdrop").classList.remove("open");
+
   modal.stageIndex = null;
+
   if (typeof mapTimerInterval !== "undefined" && mapTimerInterval) clearInterval(mapTimerInterval);
+
   if(finaleReached) setTimeout(renderGrid, 300);
+
 }
+
+
 
 document.getElementById("modalClose").addEventListener("click", closeModal);
+
 document.getElementById("modalBackdrop").addEventListener("click", (e)=>{
+
   if(e.target.id === "modalBackdrop") closeModal();
+
 });
+
+
 
 /* LIGHTBOX INTERAKCE */
+
 let currentOpenPhotoUrl = "";
 
+
+
 function openLightbox(src) {
+
   const lb = document.getElementById("lightbox");
+
   currentOpenPhotoUrl = src;
+
   document.getElementById("lbImg").src = src;
+
   lb.classList.add("open");
+
 }
+
 document.getElementById("lbClose").addEventListener("click", () => {
+
   document.getElementById("lightbox").classList.remove("open");
+
 });
+
+
 
 document.getElementById("lbDownload").addEventListener("click", () => {
+
   if (!currentOpenPhotoUrl) return;
+
   const originalBtnText = document.getElementById("lbDownload").textContent;
+
   document.getElementById("lbDownload").textContent = "Stahování...";
+
   fetch(currentOpenPhotoUrl)
+
     .then(response => response.blob())
+
     .then(blob => {
+
       const blobUrl = window.URL.createObjectURL(blob);
+
       const tempLink = document.createElement("a");
+
       tempLink.href = blobUrl;
+
       tempLink.download = "stopa.jpg";
+
       document.body.appendChild(tempLink);
+
       tempLink.click();
+
       document.body.removeChild(tempLink);
+
       window.URL.revokeObjectURL(blobUrl);
+
       document.getElementById("lbDownload").textContent = originalBtnText;
+
     })
+
     .catch(err => {
+
       console.error("Chyba při přímém stahování:", err);
+
       window.open(currentOpenPhotoUrl, "_blank");
+
       document.getElementById("lbDownload").textContent = originalBtnText;
+
     });
+
 });
 
+
+
 function renderModal(){
+
   const idx = modal.stageIndex;
+
   const stage = CONFIG.stages[idx];
+
   const content = document.getElementById("modalContent");
 
+
+
   // STAV 0: JIŽ VYŘEŠENO
+
   if(modal.state === "solved"){
+
     if (stage.type === "hacking") {
+
       content.innerHTML = `
+
         <div class="step-label">Průnik do systému letiště</div>
+
         <p class="prompt" style="color:#4caf50;">Systém byl úspěšně kompromitován a data získána.</p>
+
         <div class="stamp" style="position:relative; right:auto; bottom:auto; display:inline-block; margin-top:10px; opacity:1; transform:none;">Vyřešeno</div>
+
       `;
+
     } else if (stage.type === "map_game") {
+
       content.innerHTML = `
+
         <div class="step-label">Trasa pohybu</div>
+
         <p class="prompt" style="color:#4caf50;">Všechny lokace byly úspěšně přiřazeny k mapě.</p>
+
         <div class="stamp" style="position:relative; right:auto; bottom:auto; display:inline-block; margin-top:10px; opacity:1; transform:none;">Vyřešeno</div>
+
       `;
+
     } else if (stage.type === "dual_chat") {
+
       content.innerHTML = `
+
         <div class="step-label">Finální Identifikace</div>
+
         <p class="prompt" style="color:#4caf50;">Rozhodnutí učiněno. Systém uzamčen.</p>
+
         <div class="stamp" style="position:relative; right:auto; bottom:auto; display:inline-block; margin-top:10px; opacity:1; transform:none;">Vyřešeno</div>
+
       `;
+
     } else {
+
       content.innerHTML = `
+
         <div class="modal-photo revealed" id="modalPhoto" style="cursor:zoom-in;margin-bottom:0;">
+
           <img src="${stage.photo}">
+
           <div class="stamp">Vyřešeno</div>
+
         </div>
+
       `;
+
       document.getElementById("modalPhoto").addEventListener("click", ()=> openLightbox(stage.photo));
+
     }
+
     return;
+
   }
+
+
 
   // STAV 1: VYŽADUJE KÓD
+
   if(modal.state === "needs_code"){
+
     const codePrmpt = stage.codePrompt || "Zadej kód pro odemčení této stopy.";
+
     content.innerHTML = `
+
       <div class="step-label">Ověření protokolu</div>
+
       <p class="prompt">${codePrmpt}</p>
+
       <input type="text" id="codeInput" placeholder="Zadejte údaj" autocomplete="off">
+
       <button id="unlockBtn">Ověřit a pokračovat</button>
+
       <div class="message" id="msg"></div>
+
     `;
+
     document.getElementById("unlockBtn").addEventListener("click", () => checkCode(idx));
+
     const inp = document.getElementById("codeInput");
+
     inp.addEventListener("keydown", e => { if(e.key==="Enter") checkCode(idx); });
+
     
+
     if(window.innerWidth > 800) inp.focus();
+
     return;
+
   }
+
+
 
   // --- HACKING MINIHRA ---
+
   if(modal.state === "guessing" && stage.type === "hacking"){
+
     content.innerHTML = `
+
       <div class="modal-split-half">
+
         <div class="step-label">${stage.label}</div>
+
         <p class="prompt">${stage.prompt}</p>
+
         <div class="hack-container" id="hackContainer">
+
             <div class="hack-nodes">
+
                 <div class="h-node" id="hn1"></div>
+
                 <div class="h-node" id="hn2"></div>
+
                 <div class="h-node" id="hn3"></div>
+
                 <div class="h-node" id="hn4" style="border-color:rgba(255,255,255,0.2);"></div>
+
             </div>
+
             <div class="h-track">
+
                 <div class="h-zone" id="hZone"></div>
+
                 <div class="h-cursor" id="hCursor"></div>
+
             </div>
+
             <button id="hackBtn">DEKÓDOVAT</button>
+
             <div class="message" id="hackMsg"></div>
+
         </div>
+
       </div>
+
     `;
+
+
 
     let cursorPos = 0; let direction = 1; let speed = 1.0; let nodes = 0; let hacking = true; let animFrame;
+
     const cursor = document.getElementById("hCursor");
+
     const msg = document.getElementById("hackMsg");
 
+
+
     function updateHack() {
+
         if (!hacking) return;
+
         cursorPos += speed;
+
         if (cursorPos >= 100) cursorPos = 0; 
+
         cursor.style.left = cursorPos + '%';
+
         animFrame = requestAnimationFrame(updateHack);
+
     }
+
     animFrame = requestAnimationFrame(updateHack);
 
+
+
     document.getElementById("hackBtn").addEventListener("click", () => {
+
         if (!hacking) return;
+
         
+
         if (cursorPos >= 40 && cursorPos <= 60) {
+
             nodes++;
+
             document.getElementById("hn" + nodes).classList.add("active");
+
             if (nodes === 3) {
+
                 hacking = false;
+
                 cancelAnimationFrame(animFrame);
+
                 document.getElementById("hackBtn").style.display = "none";
+
                 msg.className = "message err"; 
+
                 msg.style.color = "#d896ff"; 
+
                 msg.textContent = "Detekována anomálie...";
 
+
+
                 let delay = 400;
+
                 for (let i = 1; i <= 4; i++) {
+
                     setTimeout(() => {
+
                         const node = document.getElementById("hn" + i);
+
                         if (node) node.className = "h-node purple";
+
                     }, delay);
+
                     delay += 400;
+
                 }
 
+
+
                 setTimeout(() => {
+
                     closeModal();
+
                     showVillainScreenHacking(); 
+
                 }, delay + 400);
+
             } else {
+
                 speed += 0.4;
+
                 msg.className = "message"; msg.style.color = "#4caf50"; msg.textContent = "Uzel prolomen!";
+
             }
+
         } else {
+
             nodes = 0; speed = 1.0;
+
             for(let i=1; i<=3; i++) document.getElementById("hn"+i).classList.remove("active");
+
             msg.className = "message err"; msg.textContent = "Špatné načasování! Spojení resetováno.";
+
             document.getElementById("hackContainer").classList.add("shake");
+
             setTimeout(() => document.getElementById("hackContainer").classList.remove("shake"), 400);
+
         }
+
     });
+
     return;
+
   }
+
+
 
   // --- DUAL CHAT FINÁLE ---
+
   if(modal.state === "guessing" && stage.type === "dual_chat") {
+
     content.innerHTML = `
+
         <div class="step-label" style="text-align:center; color:var(--blue-light); margin-bottom: 24px; font-size:14px; letter-spacing:0.2em;">${stage.label}</div>
+
         
+
         <div class="dual-chat-layout">
+
             <!-- LEVÝ SLOUPEC: Velitel -->
+
             <div class="dual-col-left expert-chat-box">
+
                 <div class="expert-header">
+
                     <img src="${stage.expertImg}">
+
                     <div class="expert-name">${stage.expertName}</div>
+
                 </div>
+
                 <div id="modalExpertMessages" style="min-height: 180px;"></div>
+
                 <div id="commanderAction" style="display:none; margin-top:auto; animation: fadein 1s ease;">
+
                     <input type="text" id="guessInput" placeholder="Jméno a příjmení" autocomplete="off" style="text-align:center; font-family:'Share Tech Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">
+
                     <button id="btnEndingCommander" style="font-size:13px;">Potvrdit identitu (Zůstat agentkou)</button>
+
                     <div class="message" id="msg" style="text-align:center; margin-top:5px; min-height: 20px;"></div>
+
                 </div>
+
             </div>
+
+
 
             <!-- STŘEDNÍ SLOUPEC: Fotka -->
+
             <div class="dual-col-center">
+
                 <div class="modal-photo revealed" style="border: 2px solid var(--blue-light); box-shadow: 0 0 25px rgba(143,196,238,0.3); margin: 0 auto; width: 100%; max-width: 250px;">
+
                     <img src="${stage.photo}">
+
                 </div>
+
             </div>
+
+
 
             <!-- PRAVÝ SLOUPEC: Padouch -->
+
             <div class="dual-col-right expert-chat-box" style="background: rgba(10, 0, 15, 0.6); border-color: #9c27b0;">
+
                 <div class="expert-header">
+
                     <img src="${stage.villainImg}" style="border-color: #9c27b0; filter: grayscale(1) sepia(1) hue-rotate(240deg) brightness(1.2);">
+
                     <div class="expert-name" style="color: #d896ff;">${stage.villainName}</div>
+
                 </div>
+
                 <div id="modalVillainMessages" style="min-height: 180px;"></div>
+
                 <button id="btnEndingVillain" class="adresa-btn" style="display:none; margin-top:auto; font-family:'Inter', sans-serif; font-size:13px; width:100%; max-width:100%;">Odmítnout velitele (Odejít s ním)</button>
+
             </div>
+
         </div>
+
     `;
 
+
+
     // 1. Spustí se velitel
+
     typeModalExpertMessages(stage.expertMsg, false, () => {
+
         // 2. Až velitel dopíše, začne psát záporák (s překlepy a pauzami)
+
         typeModalVillainMessagesWithTypos(stage.villainMsg, () => {
+
             // 3. Po dopsání se objeví obě tlačítka pro výběr (plus input field u velitele)
+
             document.getElementById("commanderAction").style.display = "block";
+
             document.getElementById("btnEndingVillain").style.display = "block";
+
             document.getElementById("btnEndingVillain").style.animation = "fadein 1s ease";
+
         });
+
     });
+
+
 
     // Logika tlačítek pro obě příběhové linie
+
     document.getElementById("btnEndingCommander").addEventListener("click", () => {
+
         const val = norm(document.getElementById("guessInput").value);
+
         const ok = stage.answers.some(a => norm(a) === val);
+
         
+
         if (ok) {
+
             selectedEnding = 'commander';
+
             finaleUnlocked = true;
+
             closeModal();
+
             markStageAsSolved(5); 
+
         } else {
+
             const msg = document.getElementById("msg");
+
             msg.className = "message err";
+
             msg.textContent = "Toto není ono. Zkuste to znovu.";
+
             document.getElementById("commanderAction").classList.add("shake");
+
             setTimeout(() => document.getElementById("commanderAction").classList.remove("shake"), 400);
+
         }
+
     });
+
+
 
     const inp = document.getElementById("guessInput");
+
     inp.addEventListener("keydown", e => { 
+
         if(e.key==="Enter") document.getElementById("btnEndingCommander").click(); 
+
     });
+
+
 
     document.getElementById("btnEndingVillain").addEventListener("click", () => {
+
         selectedEnding = 'villain';
+
         finaleUnlocked = true;
+
         closeModal();
+
         markStageAsSolved(5); 
+
     });
 
+
+
     return;
+
   }
+
+
 
   // STAV 2: STANDARDNÍ HÁDÁNÍ LOKACÍ A FOTEK
+
   if(modal.state === "guessing"){
+
     const cls = modal.hintLevel >= 2 ? "hint2" : (modal.hintLevel >= 1 ? "hint1" : "");
+
     const label = stage.label || "Lokalizace stopy";
+
     const prompt = stage.prompt || "Kde se odehrála tato část historie?";
+
     const placeholder = stage.placeholder || "Název lokace";
 
+
+
     let expertHTML = "";
+
     if (stage.expertMsg) {
+
       let imgHTML = stage.expertEvidencePhoto ? `<img src="${stage.expertEvidencePhoto}" id="expertEvidence" class="expert-evidence">` : "";
+
       expertHTML = `
+
         <div class="modal-split-half">
+
           <div class="expert-chat-box">
+
             <div class="expert-header">
+
               <img src="${stage.expertImg}" alt="${stage.expertName}" onclick="openLightbox(this.src)">
+
               <div class="expert-name">${stage.expertName}</div>
+
             </div>
+
             <div id="modalExpertMessages"></div>
+
             ${imgHTML}
+
           </div>
+
         </div>
+
       `;
+
     }
+
+
 
     let inputAreaHTML = "";
+
     if (stage.type === "geolocation") {
+
       inputAreaHTML = `<button id="geoAnalyzeBtn" class="geo-btn">Spustit analýzu polohy</button>`;
+
     } else if (stage.type !== "map_game") {
+
       inputAreaHTML = `
+
         <input type="text" id="guessInput" placeholder="${placeholder}" autocomplete="off">
+
         <div class="row-btns">
+
           <button id="guessBtn">Potvrdit</button>
+
           <button class="ghost" id="hintBtn">Nápověda</button>
+
         </div>`;
+
     }
+
+
 
     let puzzleHTML = "";
+
     
+
     if (stage.type === "map_game") {
+
        const initPhoto = stage.mapGame.photos[0].src;
+
        
+
        puzzleHTML = `
+
          <div class="map-layout-container">
+
              <div class="map-col-left">
+
                <div class="step-label" style="flex-shrink:0;">${stage.label} <span id="mapTimer" style="float:right; color:#e59a9a; font-size:16px; font-weight:bold; letter-spacing:1px;">15:00</span></div>
+
                <p class="prompt" style="flex-shrink:0;">${stage.prompt}</p>
+
                
+
                <div class="map-interactive-wrapper">
+
                  <div class="map-image-container" id="interactiveMap" onclick="handleMapClick(event)">
+
                    <img src="${stage.mapGame.mapImg}" alt="Mapa světa" id="theMapImage">
+
                    <div id="mapPinsContainer" style="position: absolute; inset: 0; pointer-events: none;"></div>
+
                  </div>
+
                </div>
+
              </div>
+
              
+
              <div class="map-col-right">
+
                 <div class="photo-wrap" style="width:100%; max-width:300px; display:flex; flex-direction:column; align-items:center;">
+
                     <h4 class="mobile-hide" style="color:var(--blue-pale); font-family:'Share Tech Mono'; margin:0 0 10px 0; text-align:center;">Najděte toto místo:</h4>
+
                     
+
                     <div style="width:100%; aspect-ratio:1/1; border-radius:6px; overflow:hidden; border:2px solid var(--blue-light); box-shadow:0 10px 30px rgba(0,0,0,.5); background:#000; cursor:zoom-in; position:relative;" onclick="openLightbox(document.getElementById('currentMapPhoto').src)">
+
                         <img id="currentMapPhoto" src="${initPhoto}" style="width:100%; height:100%; object-fit:cover;">
+
                         <div style="position:absolute; bottom:5px; right:5px; background:rgba(0,0,0,0.6); padding:4px 6px; border-radius:4px; font-size:16px; border:1px solid rgba(143,196,238,.4);">🔍</div>
+
                     </div>
+
                     
+
                     <span class="mobile-hide" style="font-size:12px; color:var(--muted); margin-top:6px; text-transform:uppercase;">(klikni pro zvětšení)</span>
+
                 </div>
+
                 
+
                 <div class="msg-wrap" style="width:100%; display:flex; flex-direction:column; justify-content:center;">
+
                     <h4 class="desktop-hide" style="color:var(--blue-pale); font-family:'Share Tech Mono'; margin:0 0 5px 0; font-size:14px;">Najděte místo z fotky na mapě:</h4>
+
                     <div class="message" id="msg" style="width:100%; text-align:center; min-height:40px; margin-top:10px;"></div>
+
                     <button id="mapDoneBtn" style="display:none; margin-top: 10px; width:100%;" onclick="markStageAsSolved(${idx})">Dokončit trasu</button>
+
                 </div>
+
              </div>
+
          </div>
+
        `;
+
     } else if (stage.type === "photo_grid") {
+
       const gridHTML = stage.photos.map(p => `
+
         <div class="photo-grid-item" onclick="openLightbox('${p}')">
+
           <img src="${p}">
+
         </div>
+
       `).join("");
+
       
+
       puzzleHTML = `
+
         <div class="modal-split-half">
+
           <div class="photo-grid">
+
             ${gridHTML}
+
           </div>
+
           <div class="step-label">${label}</div>
+
           <p class="prompt">${prompt}</p>
+
           ${inputAreaHTML}
+
           <div class="message" id="msg"></div>
+
         </div>
+
       `;
+
     } else {
+
       puzzleHTML = `
+
         <div class="modal-split-half">
+
           <div class="modal-photo ${cls}" id="modalPhoto">
+
             <img src="${stage.photo}">
+
           </div>
+
           <div class="step-label">${label}</div>
+
           <p class="prompt">${prompt}</p>
+
           ${inputAreaHTML}
+
           <div class="message" id="msg"></div>
+
         </div>
+
       `;
+
     }
+
+
 
     if (stage.expertMsg) {
+
       content.innerHTML = `<div class="modal-split">${expertHTML}${puzzleHTML}</div>`;
+
       typeModalExpertMessages(stage.expertMsg, !!stage.expertEvidencePhoto);
-    } else {
-      content.innerHTML = puzzleHTML;
-    }
-    
-    if (stage.type === "geolocation") {
-      document.getElementById("geoAnalyzeBtn").addEventListener("click", startGeoAnalysis);
-    } else if (stage.type === "map_game") {
-      startMapTimer(stage.mapGame.timeLimit);
-      setTimeout(() => {
-          initMapZoomPan();
-      }, 50);
 
     } else {
-      document.getElementById("guessBtn").addEventListener("click", checkGuess);
-      document.getElementById("hintBtn").addEventListener("click", showHint);
-      const inp = document.getElementById("guessInput");
-      inp.addEventListener("keydown", e => { if(e.key==="Enter") checkGuess(); });
-      
-      if(window.innerWidth > 800) inp.focus();
+
+      content.innerHTML = puzzleHTML;
+
     }
+
+    
+
+    if (stage.type === "geolocation") {
+
+      document.getElementById("geoAnalyzeBtn").addEventListener("click", startGeoAnalysis);
+
+    } else if (stage.type === "map_game") {
+
+      startMapTimer(stage.mapGame.timeLimit);
+
+      setTimeout(() => {
+
+          initMapZoomPan();
+
+      }, 50);
+
+
+
+    } else {
+
+      document.getElementById("guessBtn").addEventListener("click", checkGuess);
+
+      document.getElementById("hintBtn").addEventListener("click", showHint);
+
+      const inp = document.getElementById("guessInput");
+
+      inp.addEventListener("keydown", e => { if(e.key==="Enter") checkGuess(); });
+
+      
+
+      if(window.innerWidth > 800) inp.focus();
+
+    }
+
     return;
+
   }
+
 }
+
+
+
 
 
 window.initMapZoomPan = function() {
+
     const wrapper = document.querySelector('.map-interactive-wrapper');
+
     const container = document.getElementById('interactiveMap');
+
     if (!wrapper || !container) return;
 
+
+
     let scale = 1; let panX = 0; let panY = 0; let isDragging = false;
+
     let startX = 0, startY = 0;
+
     let initialPinchDist = null; let lastPinchCenter = null;
+
     let rawStartX = 0, rawStartY = 0;
 
+
+
     function updateTransform() {
+
         if (scale < 1) scale = 1; if (scale > 8) scale = 8;
+
         container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+
     }
 
+
+
     wrapper.addEventListener('wheel', (e) => {
+
         e.preventDefault();
+
         const zoomAmount = e.deltaY * -0.002;
+
         const newScale = scale * (1 + zoomAmount);
+
         const rect = wrapper.getBoundingClientRect();
+
         const offsetX = e.clientX - rect.left; const offsetY = e.clientY - rect.top;
 
+
+
         if (newScale >= 1 && newScale <= 8) {
+
             const ratio = newScale / scale;
+
             panX = offsetX - (offsetX - panX) * ratio; panY = offsetY - (offsetY - panY) * ratio;
+
             scale = newScale; updateTransform();
+
         }
+
     }, { passive: false });
 
+
+
     wrapper.addEventListener('mousedown', (e) => {
+
         isDragging = true; window.wasMapDragged = false;
+
         startX = e.clientX - panX; startY = e.clientY - panY;
+
         rawStartX = e.clientX; rawStartY = e.clientY;
+
     });
 
+
+
     window.addEventListener('mousemove', (e) => {
+
         if (!isDragging) return;
+
         if (Math.abs(e.clientX - rawStartX) > 5 || Math.abs(e.clientY - rawStartY) > 5) { window.wasMapDragged = true; }
+
         panX = e.clientX - startX; panY = e.clientY - startY;
+
         updateTransform();
+
     });
+
+
 
     window.addEventListener('mouseup', () => { isDragging = false; });
 
+
+
     wrapper.addEventListener('touchstart', (e) => {
+
         if (e.touches.length === 1) {
+
             isDragging = true; window.wasMapDragged = false;
+
             startX = e.touches[0].clientX - panX; startY = e.touches[0].clientY - panY;
+
             rawStartX = e.touches[0].clientX; rawStartY = e.touches[0].clientY;
+
         } else if (e.touches.length === 2) {
+
             isDragging = false; window.wasMapDragged = true;
+
             initialPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+
             lastPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 };
+
         }
+
     }, { passive: false });
+
+
 
     wrapper.addEventListener('touchmove', (e) => {
+
         e.preventDefault(); 
+
         if (e.touches.length === 1 && isDragging) {
+
             if (Math.abs(e.touches[0].clientX - rawStartX) > 5 || Math.abs(e.touches[0].clientY - rawStartY) > 5) { window.wasMapDragged = true; }
+
             panX = e.touches[0].clientX - startX; panY = e.touches[0].clientY - startY;
+
             updateTransform();
+
         } else if (e.touches.length === 2) {
+
             const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+
             const currentCenter = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 };
+
             if (initialPinchDist) {
+
                 const ratio = currentDist / initialPinchDist; const newScale = scale * ratio;
+
                 if (newScale >= 1 && newScale <= 8) {
+
                     const rect = wrapper.getBoundingClientRect();
+
                     const offsetX = lastPinchCenter.x - rect.left; const offsetY = lastPinchCenter.y - rect.top;
+
                     panX = offsetX - (offsetX - panX) * ratio; panY = offsetY - (offsetY - panY) * ratio;
+
                     panX += currentCenter.x - lastPinchCenter.x; panY += currentCenter.y - lastPinchCenter.y;
+
                     scale = newScale; updateTransform();
+
                 }
+
                 initialPinchDist = currentDist; lastPinchCenter = currentCenter;
+
             }
+
         }
+
     }, { passive: false });
 
+
+
     wrapper.addEventListener('touchend', (e) => {
+
         if (e.touches.length < 2) { initialPinchDist = null; }
+
         if (e.touches.length === 1) {
+
             startX = e.touches[0].clientX - panX; startY = e.touches[0].clientY - panY; isDragging = true;
+
         } else { isDragging = false; }
+
     });
+
 };
 
+
+
 window.handleMapClick = function(e) {
+
     if (!mapTimerInterval) return; 
+
     if (window.wasMapDragged) return;
+
     const stage = CONFIG.stages[modal.stageIndex];
+
     if (currentMapStep >= stage.mapGame.photos.length) return; 
 
+
+
     const imgElement = document.getElementById("theMapImage");
+
     const rect = imgElement.getBoundingClientRect();
 
+
+
     let clientX = e.clientX; let clientY = e.clientY;
+
     if (e.changedTouches && e.changedTouches.length > 0) {
+
         clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY;
+
     }
+
+
 
     if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) { return; }
 
+
+
     const clickX = ((clientX - rect.left) / rect.width) * 100;
+
     const clickY = ((clientY - rect.top) / rect.height) * 100;
 
+
+
     const currentTarget = stage.mapGame.photos[currentMapStep];
+
     const dist = Math.hypot(clickX - currentTarget.x, clickY - currentTarget.y);
+
     const msg = document.getElementById("msg");
+
+
 
     if (dist <= currentTarget.r) {
+
         const pins = document.getElementById("mapPinsContainer");
+
         const tempPin = document.createElement("div");
+
         tempPin.className = "map-pin solved-temp";
+
         tempPin.style.left = currentTarget.x + "%"; tempPin.style.top = currentTarget.y + "%";
+
         pins.appendChild(tempPin);
+
         
+
         setTimeout(() => tempPin.remove(), 1000); 
+
         currentMapStep++;
+
         
+
         msg.className = "message"; msg.style.color = "#4caf50";
+
         msg.textContent = `Výborně! Lokace nalezena.`;
+
         setTimeout(() => { if(msg.textContent === "Výborně! Lokace nalezena.") msg.textContent = ""; }, 1500);
 
+
+
         if (currentMapStep < stage.mapGame.photos.length) {
+
             document.getElementById("currentMapPhoto").src = stage.mapGame.photos[currentMapStep].src;
+
         } else {
+
             clearInterval(mapTimerInterval);
+
             document.getElementById("mapTimer").style.color = "#4caf50";
+
             document.getElementById("mapDoneBtn").style.display = "block";
+
             msg.className = "message"; msg.style.color = "#4caf50";
+
             msg.textContent = "Všechny lokace přiřazeny! Můžete dokončit analýzu trasy.";
+
         }
+
     } else {
+
         document.getElementById("interactiveMap").classList.add("shake");
+
         setTimeout(() => document.getElementById("interactiveMap").classList.remove("shake"), 400);
+
         
+
         msg.className = "message err";
+
         msg.textContent = "Chybná lokace! Ztrácíte 30 vteřin.";
+
         
+
         mapTimeRemaining -= 30;
+
         if(mapTimeRemaining < 0) mapTimeRemaining = 0;
+
         updateMapTimerDisplay();
+
     }
+
 }
+
+
 
 function updateMapTimerDisplay() {
+
     const display = document.getElementById("mapTimer");
+
     if(!display) return;
+
     let m = Math.floor(mapTimeRemaining / 60);
+
     let s = mapTimeRemaining % 60;
+
     display.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+
     if (mapTimeRemaining < 60) display.style.color = "#ff4444";
+
 }
+
+
 
 window.startMapTimer = function(seconds) {
+
     mapTimeRemaining = seconds;
+
     currentMapStep = 0;
+
     if(mapTimerInterval) clearInterval(mapTimerInterval);
+
     updateMapTimerDisplay();
 
+
+
     mapTimerInterval = setInterval(() => {
+
         mapTimeRemaining--;
+
         updateMapTimerDisplay();
 
+
+
         if (mapTimeRemaining <= 0) {
+
             clearInterval(mapTimerInterval);
+
             const msg = document.getElementById("msg");
+
             msg.className = "message err";
+
             msg.textContent = "Časový limit vypršel. Pachatel unikl! Inicializuji nový pokus...";
+
             setTimeout(() => { closeModal(); }, 3000);
+
         }
+
     }, 1000);
+
 }
+
+
 
 function showHint(){
+
   const stage = CONFIG.stages[modal.stageIndex];
+
   modal.hintLevel = Math.min(modal.hintLevel + 1, 2);
+
   renderModal();
+
   const msg = document.getElementById("msg");
+
   msg.className = "message";
+
   msg.textContent = stage.hint;
+
 }
+
+
 
 function checkCode(idx){
+
   const stage = CONFIG.stages[idx]; 
+
   const val = norm(document.getElementById("codeInput").value).replace(/-/g,"");
+
   const expectedArr = (stage.code || "").split('|').map(s => norm(s).replace(/-/g,""));
+
   
+
   if(expectedArr.includes(val)){
+
     tileStates[idx] = "guessing";
+
     modal.state = "guessing";
+
     renderGrid(); 
+
     saveProgress(); 
+
     
+
     if (stage.commanderMsgOnCode) {
+
         closeModal();
+
         startCommanderTransmission(stage.commanderMsgOnCode);
+
     } else {
+
         const card = document.getElementById("modalCard");
+
         if (stage.expertMsg || stage.type === "map_game" || stage.type === "dual_chat") {
+
             card.classList.add(stage.type === "map_game" ? "modal-map" : "modal-wide");
+
         }
+
         renderModal(); 
+
     }
+
   } else {
+
     const msg = document.getElementById("msg");
+
     msg.className = "message err";
+
     msg.textContent = "Data se neshodují. Zkus to znovu.";
+
   }
+
 }
+
+
 
 /* 1. DISTORTED OKNO - Hackerská Minihra */
+
 function showVillainScreenHacking() {
+
     const vScreen = document.getElementById("villainScreen");
+
     vScreen.classList.remove("hidden");
+
     setTimeout(() => { vScreen.classList.add("enter"); }, 50);
+
     const vCont = document.getElementById("villainMessages");
+
     vCont.innerHTML = "";
 
+
+
     function typeV(text, cb) {
+
         const b = document.createElement("div");
+
         b.className = "villain-msg-bubble typing";
+
         vCont.appendChild(b);
+
         let i = 0;
+
         let t = setInterval(() => {
+
             b.textContent += text.charAt(i); i++;
+
             if(i >= text.length) { clearInterval(t); b.classList.remove("typing"); if(cb) setTimeout(cb, 1200); }
+
         }, 50);
+
     }
 
+
+
     setTimeout(() => {
+
         typeV("Zajímavý pokus, agentko...", () => {
+
             typeV("Ale má data si beru zpět.", () => {
+
                 setTimeout(() => {
+
                     vScreen.classList.remove("enter"); 
+
                     setTimeout(() => {
+
                         vScreen.classList.add("hidden");
+
                         markStageAsSolved(3); 
+
                     }, 600);
+
                 }, 5000); 
+
             });
+
         });
+
     }, 800);
+
 }
+
+
 
 /* 2. DISTORTED OKNO - Třesoucí se adresa (Finále) */
+
 function showFinalVillainSequence() {
+
     const v2 = document.getElementById("villainScreenFinale");
+
     v2.classList.remove("hidden");
+
     setTimeout(() => v2.classList.add("enter"), 50);
 
+
+
     const msgContainer = document.getElementById("villainMessagesFinale");
+
     msgContainer.innerHTML = "";
 
+
+
     function typeVFinale(text, cb) {
+
         const b = document.createElement("div");
+
         b.className = "erratic-text-finale typing";
+
         msgContainer.appendChild(b);
+
         let i = 0;
+
         let t = setInterval(() => {
+
             b.textContent += text.charAt(i); i++;
+
             if(i >= text.length) { clearInterval(t); b.classList.remove("typing"); if(cb) setTimeout(cb, 1000); } 
+
         }, 80); 
+
     }
+
+
 
     setTimeout(() => {
+
         // První věta
+
         typeVFinale("Nemusíš to dělat...", () => {
+
             // Dramatická odmlka 1,5 vteřiny
+
             setTimeout(() => {
+
                 // Druhá věta
+
                 typeVFinale("Můžeme být přeci spolu, nemusí to tak skončit...", () => {
+
                     // 10 vteřin pauza po dopsání textu!
+
                     setTimeout(() => {
+
                         v2.classList.remove("enter");
+
                         setTimeout(() => {
+
                             v2.classList.add("hidden");
+
                             triggerVictoriousCommander();
+
                         }, 600);
+
                     }, 10000); 
+
                 });
+
             }, 1500); 
+
         });
+
     }, 800);
+
 }
+
+
 
 /* VÍTĚZNÝ VELITEL, CO PŘEJDE DO STAGE 6 */
+
 function triggerVictoriousCommander() {
+
     const msgs = [
+
         "HA! Skvěle agentko, spadl přímo do pasti!",
+
         "Náš kyberbezpečnostní tým byl tentokrát připraven a provedl protiútok.",
+
         "Získali jsme tak fotografii přímo z jeho kamery!"
+
     ];
+
     
+
     startCommanderTransmission(msgs, false, () => {
+
         tileStates[5] = "guessing";
+
         renderGrid();
+
         
+
         setTimeout(() => {
+
             openModal(5, document.querySelector('.tile[data-index="5"]'));
+
         }, 800);
+
     });
+
 }
+
+
 
 function markStageAsSolved(idx) {
+
   const stage = CONFIG.stages[idx];
+
   tileStates[idx] = "solved";
+
   
+
   if (idx + 1 < CONFIG.stages.length) {
+
       if (idx === 4) {
+
           // Vyřešení mapy (Stopa 5) teď nastaví Stopu 6 na speciální časový zámek
+
           tileStates[5] = "time_locked";
+
       } else if(tileStates[idx+1] === "locked") {
+
           if (!CONFIG.stages[idx+1].code) {
+
               tileStates[idx+1] = "guessing";
+
           } else {
+
               tileStates[idx+1] = "needs_code";
+
           }
+
       }
+
   } else {
+
       finaleReached = true;
+
   }
+
+
 
   renderGrid(); 
+
   closeModal(); 
+
   
+
   if (idx === 4) {
+
       // Hláška po dokončení 5. stopy už neověřuje čas. Nechává to až na samotné kliknutí na Stopu 6.
+
       startCommanderTransmission([
+
           "Cesta zmapována. Získaná data jsou však silně chráněna.",
+
           "Klikněte na Stopu 06 pro ověření stavu dešifrování."
+
       ], false);
+
   } else {
+
       if (stage.commanderMsg) {
+
          startCommanderTransmission(stage.commanderMsg, stage.hasDatabaseBtn);
+
       }
+
   }
+
   saveProgress();
+
 }
+
+
 
 function checkGuess(){
+
   const idx = modal.stageIndex;
+
   const stage = CONFIG.stages[idx];
+
   const val = norm(document.getElementById("guessInput").value);
+
   const ok = stage.answers.some(a => norm(a) === val);
+
   
+
   if(ok){
+
     markStageAsSolved(idx);
+
   } else {
+
     const msg = document.getElementById("msg");
+
     msg.className = "message err";
+
     msg.textContent = "Data se neshodují. Zkus to znovu.";
+
     
+
     const frame = document.getElementById("modalPhoto") || document.querySelector(".photo-grid") || document.querySelector(".dual-col-center");
+
     if (frame) {
+
       frame.classList.add("shake");
+
       setTimeout(()=>frame.classList.remove("shake"), 400);
+
     }
+
   }
+
 }
+
+
 
 /* ---------- GEOLOKACE ---------- */
+
 function startGeoAnalysis() {
+
   const btn = document.getElementById("geoAnalyzeBtn");
+
   const msg = document.getElementById("msg");
+
   
+
   btn.disabled = true;
+
   btn.innerHTML = "Navazuji spojení se satelitem... <span class='blink'>_</span>";
+
   msg.className = "message";
+
   msg.textContent = "";
 
+
+
   if (!navigator.geolocation) {
+
     msg.className = "message err";
+
     msg.textContent = "Vaše zařízení nepodporuje určení polohy.";
+
     btn.disabled = false;
+
     btn.textContent = "Spustit analýzu polohy";
+
     return;
+
   }
 
+
+
   setTimeout(() => {
+
     btn.innerHTML = "Analyzuji souřadnice... <span class='blink'>_</span>";
+
     navigator.geolocation.getCurrentPosition(
+
       (position) => {
+
         const lat = position.coords.latitude;
+
         const lon = position.coords.longitude;
+
         evaluateGeoMatch(lat, lon);
+
       },
+
       (error) => {
+
         msg.className = "message err";
+
         msg.textContent = "Nepodařilo se získat polohu. Máte zapnutou GPS a povolili jste přístup webu?";
+
         btn.disabled = false;
+
         btn.textContent = "Spustit analýzu polohy";
+
       },
+
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+
     );
+
   }, 1800);
+
 }
 
+
+
 function evaluateGeoMatch(lat, lon) {
+
   const btn = document.getElementById("geoAnalyzeBtn");
+
   const stage = CONFIG.stages[modal.stageIndex];
+
   
+
   const R = 6371; 
+
   const dLat = (stage.targetCoords.lat - lat) * (Math.PI/180);
+
   const dLon = (stage.targetCoords.lon - lon) * (Math.PI/180); 
+
   const a = 
+
     Math.sin(dLat/2) * Math.sin(dLat/2) +
+
     Math.cos(lat * (Math.PI/180)) * Math.cos(stage.targetCoords.lat * (Math.PI/180)) * 
+
     Math.sin(dLon/2) * Math.sin(dLon/2); 
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+
   const distance = R * c * 1000; 
+
+
 
   const tolerance = stage.tolerance || 500;
 
+
+
   if (distance <= tolerance) {
+
     markStageAsSolved(modal.stageIndex);
+
   } else {
+
     const msg = document.getElementById("msg");
+
     msg.className = "message err";
+
     msg.textContent = `Neshoda. Vyzařování z tohoto místa se nepotvrdilo (odchylka cca ${Math.round(distance)} m).`;
+
     btn.disabled = false;
+
     btn.textContent = "Spustit analýzu polohy";
+
     
+
     const frame = document.getElementById("modalPhoto");
+
     if (frame) {
+
       frame.classList.add("shake");
+
       setTimeout(()=>frame.classList.remove("shake"), 400);
+
     }
+
   }
+
 }
+
+
 
 /* ---------- FINALE LOGIKA ---------- */
+
 function renderFinale(){
+
   if(finaleUnlocked){
+
     const endingData = CONFIG.endings[selectedEnding]; 
 
+
+
     document.getElementById("finaleReveal").classList.remove("hidden");
+
     document.getElementById("finaleTitle").textContent = endingData.title;
+
     document.getElementById("finaleText").textContent = endingData.text;
+
     document.getElementById("finalePhoto").src = endingData.photo;
+
   }
+
 }
+
+
 
 /* ============================================================
+
    SAVE/LOAD SYSTÉM (LocalStorage)
+
    ============================================================ */
+
 const SAVE_KEY = "agent006_save";
 
+
+
 function saveProgress() {
+
   const gameState = {
+
     tileStates: tileStates,
+
     finaleReached: finaleReached,
+
     finaleUnlocked: finaleUnlocked,
+
     selectedEnding: selectedEnding,
+
     isAuthenticated: document.getElementById("gridScreen").classList.contains("enter") || finaleReached
+
   };
+
   localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+
 }
+
+
 
 function loadProgress() {
+
   const savedData = localStorage.getItem(SAVE_KEY);
+
   if (savedData) {
+
     try {
+
       const gameState = JSON.parse(savedData);
+
       tileStates = gameState.tileStates;
+
       finaleReached = gameState.finaleReached;
+
       finaleUnlocked = gameState.finaleUnlocked;
+
       selectedEnding = gameState.selectedEnding;
+
       return gameState.isAuthenticated;
+
     } catch (e) {
+
       console.error("Chyba při načítání pozice", e);
+
     }
+
   }
+
   return false;
+
 }
+
+
 
 function resetGame() {
+
   localStorage.removeItem(SAVE_KEY);
+
   location.reload();
+
 }
+
+
 
 if (loadProgress()) {
+
   // FIX PRO STARÉ ULOŽENÉ HRY:
+
   if (tileStates[4] === "solved" && tileStates[5] === "locked") {
+
       tileStates[5] = "time_locked";
+
       saveProgress();
+
   }
+
+
 
   // Pokud existuje uložená hra, přeskočíme intro
+
   document.getElementById("introScreen").classList.add("hidden");
+
   document.getElementById("agentScreen").classList.add("hidden");
 
+
+
   if (finaleReached) {
+
     // Načtení rovnou do finále
+
     document.getElementById("finaleScreen").classList.remove("hidden");
+
     renderFinale();
+
   } else {
+
     // Načtení do rozehraného gridu
+
     document.getElementById("gridScreen").classList.remove("hidden");
+
     document.getElementById("gridScreen").classList.add("enter");
+
     renderGrid();
+
     
+
     // Zpráva podle aktuálního stavu hry
+
     if (tileStates[5] === "time_locked") {
+
         startCommanderTransmission([
+
             "Vítejte zpět, agentko.",
+
             "Klikněte na Stopu 06 pro ověření stavu dešifrování."
+
         ], false);
+
     } else {
+
         startCommanderTransmission(["Vítejte zpět, agentko. Údaje obnoveny z paměti terminálu. Pokračujte ve vyšetřování."]);
+
     }
+
   }
+
 } else {
+
   // Pokud neexistuje save, spustíme intro animaci
+
   preloadImagesAndStart();
+
 }
+
 </script>
+
 </body>
+
 </html>
