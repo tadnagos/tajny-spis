@@ -775,7 +775,23 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
     margin-left: 4px;
     color: #9c27b0;
 }
+/* --- ZVIDITELNĚNÍ KARTY ZÁPORÁKA --- */
+#villainScreen.enter .modal-card,
+#villainScreenFinale.enter .villain-card {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
 
+/* Formátování pro finální padoušské okno (kdyby chybělo) */
+#villainScreenFinale .villain-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border-radius: 10px;
+    transform: scale(0.15);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(.2,.8,.25,1), opacity .3s ease;
+}
 </style>
 </head>
 <body>
