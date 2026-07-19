@@ -362,6 +362,17 @@ body::after{
   text-transform: uppercase;
 }
 .tile.needs_code:hover { transform:scale(1.02); }
+
+/* Časový zámek */
+.tile.time_locked {cursor:pointer;}
+.tile.time_locked .folder-body::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 2;
+}
+.tile.time_locked:hover { transform:scale(1.02); }
+
 .tile.guessing .folder-body img {filter:grayscale(.2) brightness(.42) blur(15px);}
 .tile.guessing {cursor:pointer;}
 .tile.guessing:hover {transform:scale(1.045);}
@@ -1354,6 +1365,8 @@ function renderGrid(){
       inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#8fc4ee" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>`;
     } else if (state === 'needs_code') {
       inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#8fc4ee" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div class="needscode-text">Zadej kód</div></div>`;
+    } else if (state === 'time_locked') {
+      inner += `<div class="folder-body"><svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="#d9b46a" stroke-width="1.6"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><div class="needscode-text" style="color:var(--gold);">Analýza</div></div>`;
     } else if (state === 'guessing') {
       if (s.type === "hacking" || s.type === "map_game" || s.type === "dual_chat") {
          inner += `<div class="folder-body" style="display:flex;align-items:center;justify-content:center;background:#08111a;border-color:#4caf50;"><span style="color:#4caf50;font-family:'Share Tech Mono';font-weight:bold;">>_ TERMINAL</span></div>`;
@@ -1379,6 +1392,22 @@ function renderGrid(){
 
 /* ---------- MODAL ---------- */
 function openModal(idx, tileEl){
+  if (tileStates[idx] === 'time_locked') {
+      const dayOfWeek = new Date().getDay();
+      if (dayOfWeek === 4 || dayOfWeek === 5) {
+          adresaClicks = 0; // Resetování pro jistotu
+          startCommanderTransmission(CONFIG.stages[4].commanderMsg, CONFIG.stages[4].hasDatabaseBtn);
+      } else {
+          startCommanderTransmission([
+              "Přístup odepřen.",
+              "Výsledky se vyhodnocují, přijďte později agentko."
+          ], false);
+          tileEl.classList.add("shake");
+          setTimeout(() => tileEl.classList.remove("shake"), 400);
+      }
+      return; // Modal se nyní neotevírá, čeká se na interakci s panelem velitele
+  }
+
   const rect = tileEl.getBoundingClientRect();
   const ox = ((rect.left + rect.width/2) / window.innerWidth) * 100;
   const oy = ((rect.top + rect.height/2) / window.innerHeight) * 100;
@@ -2119,7 +2148,8 @@ function markStageAsSolved(idx) {
   
   if (idx + 1 < CONFIG.stages.length) {
       if (idx === 4) {
-          // Záměrně prázdné: Vyřešení 5. stopy (mapa) neodemkne Stopu 6 automaticky.
+          // Vyřešení mapy (Stopa 5) teď nastaví Stopu 6 na speciální časový zámek
+          tileStates[5] = "time_locked";
       } else if(tileStates[idx+1] === "locked") {
           if (!CONFIG.stages[idx+1].code) {
               tileStates[idx+1] = "guessing";
@@ -2135,17 +2165,11 @@ function markStageAsSolved(idx) {
   closeModal(); 
   
   if (idx === 4) {
-      const dayOfWeek = new Date().getDay();
-      if (dayOfWeek === 4 || dayOfWeek === 5) {
-          if (stage.commanderMsg) {
-             startCommanderTransmission(stage.commanderMsg, stage.hasDatabaseBtn);
-          }
-      } else {
-          startCommanderTransmission([
-              "Cesta zmapována. Získaná data jsou však silně chráněna.",
-              "Výsledky se vyhodnocují, přijďte později agentko."
-          ], false);
-      }
+      // Hláška po dokončení 5. stopy už neověřuje čas. Nechává to až na samotné kliknutí na Stopu 6.
+      startCommanderTransmission([
+          "Cesta zmapována. Získaná data jsou však silně chráněna.",
+          "Klikněte na Stopu 06 pro ověření stavu dešifrování."
+      ], false);
   } else {
       if (stage.commanderMsg) {
          startCommanderTransmission(stage.commanderMsg, stage.hasDatabaseBtn);
@@ -2296,6 +2320,12 @@ function resetGame() {
 }
 
 if (loadProgress()) {
+  // FIX PRO STARÉ ULOŽENÉ HRY:
+  if (tileStates[4] === "solved" && tileStates[5] === "locked") {
+      tileStates[5] = "time_locked";
+      saveProgress();
+  }
+
   // Pokud existuje uložená hra, přeskočíme intro
   document.getElementById("introScreen").classList.add("hidden");
   document.getElementById("agentScreen").classList.add("hidden");
@@ -2309,7 +2339,16 @@ if (loadProgress()) {
     document.getElementById("gridScreen").classList.remove("hidden");
     document.getElementById("gridScreen").classList.add("enter");
     renderGrid();
-    startCommanderTransmission(["Vítejte zpět, agentko. Údaje obnoveny z paměti terminálu. Pokračujte ve vyšetřování."]);
+    
+    // Zpráva podle aktuálního stavu hry
+    if (tileStates[5] === "time_locked") {
+        startCommanderTransmission([
+            "Vítejte zpět, agentko.",
+            "Klikněte na Stopu 06 pro ověření stavu dešifrování."
+        ], false);
+    } else {
+        startCommanderTransmission(["Vítejte zpět, agentko. Údaje obnoveny z paměti terminálu. Pokračujte ve vyšetřování."]);
+    }
   }
 } else {
   // Pokud neexistuje save, spustíme intro animaci
