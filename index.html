@@ -792,6 +792,66 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
     opacity: 0;
     transition: transform 0.45s cubic-bezier(.2,.8,.25,1), opacity .3s ease;
 }
+/* =========================================
+   DYNAMICKÝ GLITCH CELÉHO SYSTÉMU
+   ========================================= */
+body.system-glitching {
+  /* Výchozí intenzita je 1, JS ji bude zvyšovat */
+  --intensity: 1; 
+  /* Ztmavení a mírné barevné posuny pozadí podle intenzity */
+  filter: saturate(calc(1 - (var(--intensity) * 0.2))) hue-rotate(calc(var(--intensity) * 10deg));
+  transition: filter 0.2s ease;
+}
+
+/* Klepání panelu velitele */
+body.system-glitching .sidebar {
+  animation: ui-shake calc(0.6s / var(--intensity)) infinite;
+  box-shadow: 0 0 calc(var(--intensity) * 15px) rgba(156, 39, 176, 0.5);
+  border-color: rgba(156, 39, 176, 0.6);
+}
+
+/* Klepání složek (gridu) */
+body.system-glitching .tile {
+  animation: folder-panic calc(0.8s / var(--intensity)) infinite;
+}
+
+/* Rozpad textů (Chromatická aberace) */
+body.system-glitching .commander-msg,
+body.system-glitching .grid-title,
+body.system-glitching .grid-sub,
+body.system-glitching .folder-tab {
+  animation: text-break calc(0.4s / var(--intensity)) infinite steps(2);
+}
+
+/* Glitch fotky velitele */
+body.system-glitching .commander-photo {
+  filter: grayscale(1) invert(calc(var(--intensity) * 0.2));
+  animation: ui-shake calc(0.3s / var(--intensity)) infinite reverse;
+}
+
+/* --- Samotné Keyframy --- */
+@keyframes ui-shake {
+  0% { transform: translate(0, 0) skew(0deg); }
+  20% { transform: translate(-2px, 1px) skew(-1deg); }
+  40% { transform: translate(2px, -2px) skew(1deg); }
+  60% { transform: translate(-3px, 2px) skew(0deg); }
+  80% { transform: translate(3px, -1px) skew(-2deg); }
+  100% { transform: translate(0, 0) skew(0deg); }
+}
+
+@keyframes folder-panic {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-1.5deg) scale(1.02); }
+  50% { transform: rotate(1.5deg) scale(0.98); }
+  75% { transform: rotate(-1deg) scale(1.01); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes text-break {
+  0% { text-shadow: 2px 0 #ff003c, -2px 0 #00f0ff; transform: translateX(-1px); }
+  50% { text-shadow: -2px 0 #ff003c, 2px 0 #00f0ff; transform: translateX(1px); }
+  100% { text-shadow: 2px 0 #ff003c, -2px 0 #00f0ff; transform: translateX(0); }
+}  
 </style>
 </head>
 <body>
@@ -1260,24 +1320,32 @@ function handleAdresaClick(e) {
     const btn = e.target.closest('.adresa-btn');
     const scr = document.body;
 
+    // 1. Aktivujeme globální glitch třídu a pošleme CSS aktuální intenzitu
+    scr.classList.add("system-glitching");
+    scr.style.setProperty('--intensity', adresaClicks);
+
+    // 2. Postupné odhalování adresy
     if (adresaClicks === 1) {
         btn.innerHTML = "<span style='font-family:\"Share Tech Mono\", monospace; letter-spacing:1px;'>P*d V@doj#m&m !0/14</span>";
-        scr.classList.add("glitch-1");
     } 
     else if (adresaClicks === 2) {
         btn.innerHTML = "<span style='font-family:\"Share Tech Mono\", monospace; letter-spacing:1px;'>P#d V@doj#mem 10/14</span>";
-        scr.classList.remove("glitch-1");
-        scr.classList.add("glitch-2");
     } 
-    else if (adresaClicks === 3) {
+    else if (adresaClicks >= 3) {
+        // Při třetím (a jakémkoliv dalším rychlém) kliknutí je adresa celá
         btn.innerHTML = "<span style='font-family:\"Share Tech Mono\", monospace; letter-spacing:1px;'>Pod Vodojemem 10/14</span>";
-        scr.classList.remove("glitch-2");
-        scr.classList.add("glitch-3");
-        
+    }
+
+    // 3. Po třetím kliknutí spustíme odpočet do finále (ale nezastavíme možnost klikat dál a glitchovat víc!)
+    if (adresaClicks === 3) {
+        // Dáme hráči 1.5 vteřiny na to, aby sledoval totální chaos v systému
         setTimeout(() => {
-            scr.classList.remove("glitch-3");
+            // Systém se vypne / uklidní před nástupem padoucha
+            scr.classList.remove("system-glitching");
+            scr.style.removeProperty('--intensity');
+            
             showFinalVillainSequence();
-        }, 800);
+        }, 1500);
     }
 }
 
