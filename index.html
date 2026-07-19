@@ -514,9 +514,40 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
 .dl-btn:hover { background: #fff; }
 
 /* Speciální fixní tlačítko pro adresu */
-.adresa-btn { background: rgba(156, 39, 176, 0.2) !important; border-color: #9c27b0 !important; color: #e1bfff !important; margin-top: 10px; transition: all 0.2s ease; display: inline-block; width: 100%; max-width: 320px; height: 48px; text-align: center; flex-shrink: 0; }
-.adresa-btn:hover { background: rgba(156, 39, 176, 0.4) !important; color: #fff !important; }
-.adresa-btn .glitch-text { font-family: 'Share Tech Mono', monospace; font-size: 14px; letter-spacing: 1px; }
+/* Speciální fixní tlačítko pro adresu */
+.adresa-btn { 
+  background: rgba(156, 39, 176, 0.2) !important; 
+  border-color: #9c27b0 !important; 
+  color: #e1bfff !important; 
+  margin-top: 10px; 
+  transition: all 0.2s ease; 
+  
+  /* Pevné rozměry a zarovnání */
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  width: 100%; 
+  max-width: 320px; 
+  height: 48px; 
+  flex-shrink: 0; 
+
+  /* TÍMTO ZABRÁNÍME ŠKUBÁNÍ OKNA: */
+  white-space: nowrap; /* Zakáže zalomení textu na druhý řádek */
+  overflow: hidden;    /* Skryje případný přesahující text */
+  box-sizing: border-box;
+}
+
+.adresa-btn:hover { 
+  background: rgba(156, 39, 176, 0.4) !important; 
+  color: #fff !important; 
+}
+
+.adresa-btn .glitch-text,
+.adresa-btn span { 
+  font-family: 'Share Tech Mono', monospace; 
+  font-size: 14px; 
+  letter-spacing: 1px; 
+}
 
 .message{font-size:15px;margin-top:10px;min-height:20px; font-weight: 500;}
 .message.err{color:#e59a9a;}
