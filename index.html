@@ -1006,7 +1006,7 @@ const CONFIG = {
   stages: [
     { 
       photo:"Obrazky/trida.jpg", 
-      answers:["ucitelka"], 
+      answers:["Nejedlá"], 
       hint:"Mělo by jít o jistou pedagožku, která byla s naším subjektem v kontaktu již v jeho začátcích.", 
       commanderMsg: [
         "Výborně agentko, podařilo se nám odhalit z jaké fotografie pochází výstřižek. O identitě pachatele nám sice moc neříká ale...",
@@ -1067,7 +1067,7 @@ const CONFIG = {
         "Díky analýze signálu jsme vytipovali tři místa odkud mohl signál vzejít. Vysíláme Vás do terénu agentko, dostaňte se na místo a spusťte analýzu, my Vám potvrdíme zda jde o shodu či nikoliv.\n\n1. 50.7930503N, 14.1085081E\n2. 50.6756544N, 14.0037250E\n3. 50.6389983N, 13.8596914E"
       ],
       type: "geolocation", 
-      targetCoords: { lat: 50.6837236, lon: 13.9928667 },
+      targetCoords: { lat: 50.7930503, lon: 14.1085081 },
       tolerance: 200 
     },
     { 
@@ -1593,7 +1593,7 @@ function openModal(idx, tileEl){
      ======================================================= */
   if (tileStates[idx] === 'time_locked') {
       const dayOfWeek = new Date().getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 6 || dayOfWeek === 7) {
+      if (dayOfWeek === 0 || dayOfWeek === 4 || dayOfWeek === 5) {
           adresaClicks = 0; // Resetování pro jistotu
           startCommanderTransmission(CONFIG.stages[4].commanderMsg, CONFIG.stages[4].hasDatabaseBtn);
       } else {
@@ -1838,7 +1838,7 @@ function renderModal(){
                 </div>
                 <div id="modalExpertMessages" style="min-height: 180px;"></div>
                 <div id="commanderAction" style="display:none; margin-top:auto; animation: fadein 1s ease;">
-                    <input type="text" id="guessInput" placeholder="Jméno a příjmení" autocomplete="off" style="text-align:center; font-family:'Share Tech Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">
+                    <input type="text" id="guessInput" placeholder="Jméno" autocomplete="off" style="text-align:center; font-family:'Share Tech Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">
                     <button id="btnEndingCommander" style="font-size:13px;">Potvrdit identitu (Zůstat agentkou)</button>
                     <div class="message" id="msg" style="text-align:center; margin-top:5px; min-height: 20px;"></div>
                 </div>
