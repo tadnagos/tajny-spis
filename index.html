@@ -1328,7 +1328,7 @@ function openModal(idx, tileEl){
      ======================================================= */
   if (tileStates[idx] === 'time_locked') {
       const dayOfWeek = new Date().getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 4 || dayOfWeek === 5) {
+      if (dayOfWeek === 0 || dayOfWeek === 4 || dayOfWeek === 7) {
           adresaClicks = 0; // Resetování pro jistotu
           startCommanderTransmission(CONFIG.stages[4].commanderMsg, CONFIG.stages[4].hasDatabaseBtn);
       } else {
