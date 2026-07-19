@@ -527,6 +527,22 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
 @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
 .modal-close{ position:absolute;top:-14px;right:-14px; width:34px;height:34px;border-radius:50%; background:var(--bg-panel); border:1px solid rgba(143,196,238,.25); color:var(--blue-pale); display:flex;align-items:center;justify-content:center; cursor:pointer;font-size:18px; z-index: 10; }
 
+/* Tlačítko pro databázi pasažérů */
+.db-btn {
+    background: var(--gold);
+    color: #04101c;
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+    transition: all 0.2s;
+}
+.db-btn:hover { background: #ebd098; }
+
 /* ---------- FINALE ---------- */
 #finaleScreen {
   padding: 0; /* Vyresetujeme odsazení pro full-screen efekt */
@@ -627,6 +643,72 @@ button.ghost:hover{background:rgba(143,196,238,.08);}
   .expert-header { gap: 14px; margin-bottom: 12px; }
   .expert-name { font-size: 16px; }
 }
+
+/* ---------- DATABASE MODAL ---------- */
+#dbModal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(4,10,19,0.95);
+    z-index: 999;
+    display: none !important; /* Striktní skrytí ve výchozím stavu */
+    flex-direction: column;
+    padding: 40px 16px;
+    align-items: center;
+    justify-content: center;
+}
+#dbModal.open {
+    display: flex !important;
+}
+.db-container {
+    width: 100%;
+    max-width: 800px;
+    background: var(--bg-panel);
+    border: 1px solid var(--blue);
+    border-radius: 8px;
+    padding: 24px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    overflow: hidden;
+}
+.db-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.db-header h3 { margin: 0; color: var(--blue-pale); font-family: 'Share Tech Mono'; font-size: 22px; text-transform: uppercase; }
+.db-close { cursor: pointer; color: var(--muted); font-size: 28px; line-height: 1; }
+.db-close:hover { color: var(--blue-light); }
+.db-search { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid var(--blue-light); color: white; font-family: 'Share Tech Mono'; margin-bottom: 20px; font-size: 16px; border-radius: 4px; flex-shrink: 0;}
+
+.db-table-wrap {
+    overflow-x: auto; /* Zabrání křížení textu posuvníkem na mobilu */
+    overflow-y: auto;
+    flex: 1;
+    border: 1px solid rgba(143,196,238,.2);
+    border-radius: 4px;
+    background: rgba(0,0,0,0.3);
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+.db-table {
+    width: 100%;
+    min-width: 500px; /* Vynutí, aby se sloupce na mobilu nezmáčkly k sobě */
+    border-collapse: collapse;
+    color: var(--blue-pale);
+    font-size: 15px;
+    text-align: left;
+    table-layout: fixed;
+}
+.db-table th:nth-child(1) { width: 45%; }
+.db-table th:nth-child(2) { width: 25%; }
+.db-table th:nth-child(3) { width: 30%; }
+.db-table td, .db-table th {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(143,196,238,.1);
+    white-space: nowrap; /* Text zůstane na jednom řádku, nepůjde přes sebe */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.glitch-text { font-family: 'Share Tech Mono', monospace; letter-spacing: 0.05em; }
+.db-table tr:hover { background: rgba(143,196,238,.1); }
 </style>
 </head>
 <body>
@@ -1174,7 +1256,8 @@ function startCommanderTransmission(msgs, hasDatabaseBtn = false, onComplete = n
       } else {
         msgDiv.classList.remove("typing");
         
-        if (idx === msgs.length - 1 && hasDatabaseBtn) {
+        // Přidána striktní podmínka "hasDatabaseBtn === true", aby se tlačítko nezobrazovalo u předchozích stop
+        if (idx === msgs.length - 1 && hasDatabaseBtn === true) {
           const btn = document.createElement("button");
           btn.className = "db-btn";
           btn.innerHTML = `Otevřít databázi pasažérů`;
